@@ -17,7 +17,8 @@ svg #map text {
   text-anchor: middle;
 }
 
-    svg { background-color: #eee; }
+svg { background-color: #000; }
+	/*
     svg .municipality { fill: red; }
     svg .municipality:hover { stroke: #333; }
     svg .municipality.p0 { fill: rgb(247,251,255); }
@@ -29,6 +30,7 @@ svg #map text {
     svg .municipality.p6 { fill: rgb(33,113,181); }
     svg .municipality.p7 { fill: rgb(8,81,156); }
     svg .municipality.p8 { fill: rgb(8,48,107); }
+	*/
     svg text { font-size: 10px; }
 /*
 svg #places text {
