@@ -1,25 +1,33 @@
 svg text {
   pointer-events: none;
 }
+
 svg .municipality {
   fill: #111;
   stroke: #fff;
 }
+
 svg .municipality-label {
-  fill: #bbb;
+  fill: #bbb;	/*지도 구역 색깔*/
   font-size: 12px;
   font-weight: 300;
   text-anchor: middle;
 }
+
+svg .municipality-label:hover {
+  fill: #fff;
+  font-size: 12px;
+  font-weight: 300;
+  text-anchor: middle;
+}
+
 svg #map text {
   color: #333;
   font-size: 10px;
   text-anchor: middle;
 }
 
-svg { background-color: #000; }
-	/*
-    svg .municipality { fill: red; }
+    svg { background-color: #eee; }	/*배경색 및 선 색깔*/    svg .municipality { fill: red; }
     svg .municipality:hover { stroke: #333; }
     svg .municipality.p0 { fill: rgb(247,251,255); }
     svg .municipality.p1 { fill: rgb(222,235,247); }
@@ -30,9 +38,7 @@ svg { background-color: #000; }
     svg .municipality.p6 { fill: rgb(33,113,181); }
     svg .municipality.p7 { fill: rgb(8,81,156); }
     svg .municipality.p8 { fill: rgb(8,48,107); }
-	*/
-    svg text { font-size: 10px; }
-/*
+    svg text { font-size: 20px; }/*
 svg #places text {
   color: #777;
   font: 10px sans-serif;
