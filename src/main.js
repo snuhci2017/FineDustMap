@@ -17,8 +17,8 @@ var projection = d3.geo.mercator()
 	
 var path = d3.geo.path().projection(projection);
 
-d3.json("data/country-topo.json", function(error, data) {
-	var features = topojson.feature(data, data.objects["municipalities-geo"]).features;
+d3.json("data/jeju-topo.json", function(error, data) {
+	var features = topojson.feature(data, data.objects["TL_SCCO_SIG_crs84-m2s"]).features;
 	
 	map.selectAll("path")
 	    .data(features)
