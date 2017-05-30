@@ -17,8 +17,8 @@ var projection = d3.geo.mercator()
 	
 var path = d3.geo.path().projection(projection);
 
-d3.json("data/gyeungnam-topo.json", function(error, data) {
-	var features = topojson.feature(data, data.objects["TL_SCCO_SIG_crs84-m2s"]).features;
+d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
+	var features = topojson.feature(data, data.objects["skorea_provinces_geo"]).features;
 	
 	map.selectAll("path")
 	    .data(features)
@@ -27,13 +27,13 @@ d3.json("data/gyeungnam-topo.json", function(error, data) {
 	  	.attr("dy", ".35em")
 		.attr("d", path)
 		.attr("class", "municipality-label")
-		.text(function(d){ return d.properties.name; })
+		.text(function(d){ return d.properties.name;})
 		.on("click", myclick)
 		.on("mouseenter", mymouseenter)
 		.on("mouseleave", mymouseleave)
 });
 
-d3.csv("data/electric.csv", function(data) {
+d3.csv("csv/electric.csv", function(data) {
 	map.selectAll("circle")
 		.data(data)
 		.enter().append("circle")
