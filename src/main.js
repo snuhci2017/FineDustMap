@@ -20,17 +20,27 @@ var path = d3.geo.path().projection(projection);
 d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
 	var features = topojson.feature(data, data.objects["skorea_provinces_geo"]).features;
 	
-	map.selectAll("path")
+	d3.csv("csv/Sido/pm10.csv", function(data) {
+		var rateById = {};
+		data.forEach(function(d) {
+			rateById[d.지점] = +d.value;
+		});
+		console.log(rateById);
+		map.selectAll("path")
 	    .data(features)
 	  .enter().append("path")
-	//	.attr("transform", function(d){ return "translate("+path.centroid(d)+")"; })
+	  //	.attr("transform", function(d){ return "translate("+path.centroid(d)+")"; })
 	  	.attr("dy", ".35em")
 		.attr("d", path)
 		.attr("class", "municipality-label")
 		.text(function(d){ return d.properties.name;})
+		.style("fill", function(d) {
+            return getcolor(rateById[d.properties.name]);
+        })
 		.on("click", myclick)
 		.on("mouseenter", mymouseenter)
-		.on("mouseleave", mymouseleave)
+		.on("mouseleave", mymouseleave);
+	})
 });
 
 d3.csv("csv/electric.csv", function(data) {
@@ -47,7 +57,15 @@ svg.append("text")
 	.attr("y", 20)
 	.attr("font-size", "20px")
 	.attr("id", "zoom-in");
-
+	
+function getcolor(val) {
+	if(val >= 151) return "#d7191c";
+	else if(val < 151 && val >= 81) return "#fdae61";
+	else if(val < 81 && val >= 31) return "#a6d96a";
+	else if(val < 31 && val >= 0) return "#1a9641";
+	else return "#000";
+}
+	
 function myclick(d) {
 	var x, y, k;
 	var text;
@@ -93,5 +111,10 @@ function mymouseenter(d) {
 
 function mymouseleave(d) {
 	$("#mouse-enter").remove();
+}
+
+function detailpage(index) {
+	p = "detail.html?index=" + index;
+	window.location.href="http://www.naver.com";
 }
 //$(document).ready(main);
