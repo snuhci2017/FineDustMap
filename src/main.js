@@ -20,12 +20,13 @@ var path = d3.geo.path().projection(projection);
 d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
 	var features = topojson.feature(data, data.objects["skorea_provinces_geo"]).features;
 	
-	d3.csv("csv/Sido/pm10.csv", function(data) {
+	d3.csv("csv/pm10.csv", function(data) {
 		var rateById = {};
 		data.forEach(function(d) {
-			rateById[d.지점] = +d.value;
+			console.log(d);
+			rateById[d.province] = +d.value;
 		});
-		console.log(rateById);
+
 		map.selectAll("path")
 	    .data(features)
 	  .enter().append("path")
@@ -90,7 +91,7 @@ function myclick(d) {
 		.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
 		.style("stroke-width", 1.5 / k + "px");
 	$("#zoom-in").text(text);
-
+	detailpage(d.properties.name);
 }
 
 function mymouseenter(d) {
@@ -114,7 +115,16 @@ function mymouseleave(d) {
 }
 
 function detailpage(index) {
-	p = "detail.html?index=" + index;
-	window.location.href="http://www.naver.com";
+	setCookie("province", index, 0.5);
+	p = "detail.html";
+	window.location.href=p;
 }
+
+function setCookie(c_name,value,exdays) {
+	var exdate=new Date();
+	exdate.setDate(exdate.getDate() + exdays);
+	var c_value=escape(value) + ((exdays==null) ? "" : "; expires="+exdate.toUTCString());
+	document.cookie=c_name + "=" + c_value;
+}
+
 //$(document).ready(main);
