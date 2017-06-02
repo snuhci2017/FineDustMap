@@ -17,16 +17,15 @@ var projection = d3.geo.mercator()
 
 var path = d3.geo.path().projection(projection);
 
-d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
-	var features = topojson.feature(data, data.objects["skorea_provinces_geo"]).features;
-	
-	d3.csv("csv/pm10.csv", function(data) {
+d3.json("json/ulsan-topo.json", function(error, data) {
+	var features = topojson.feature(data, data.objects["TL_SCCO_SIG_crs84-m2s"]).features;
+
+	d3.csv("csv/Sido/pm10.csv", function(data) {
 		var rateById = {};
 		data.forEach(function(d) {
-			console.log(d);
-			rateById[d.province] = +d.value;
+			rateById[d.지역] = +d.value;
 		});
-
+		console.log(rateById);
 		map.selectAll("path")
 	    .data(features)
 	  .enter().append("path")
@@ -34,16 +33,16 @@ d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
 	  	.attr("dy", ".35em")
 		.attr("d", path)
 		.attr("class", "municipality-label")
-		.text(function(d){ return d.properties.name;})
-		.style("fill", function(d) {
+		.text(function(d){ return d.properties.SIG_KOR_NM;})
+		/*.style("fill", function(d) {
             return getcolor(rateById[d.properties.name]);
-        })
+        })*/
 		.on("click", myclick)
 		.on("mouseenter", mymouseenter)
 		.on("mouseleave", mymouseleave);
 	})
 });
-
+/*
 d3.csv("csv/electric.csv", function(data) {
 	map.selectAll("circle")
 		.data(data)
@@ -51,7 +50,7 @@ d3.csv("csv/electric.csv", function(data) {
 			.attr("cx", function(d) { return projection([d.lon, d.lat])[0]; })
 			.attr("cy", function(d) { return projection([d.lon, d.lat])[1]; })
 			.attr("r", 2);
-});
+});*/
 
 svg.append("text")
 	.attr("x", 10)
@@ -77,7 +76,7 @@ function myclick(d) {
 		y = centroid[1];
 		k = 4;
 		centered = d;
-		text = "zoom in " + d.properties.name;
+		text = "zoom in " + d.properties.SIG_KOR_NM;
 	} else {
 		x = width / 2;
 		y = height / 2;
@@ -91,7 +90,7 @@ function myclick(d) {
 		.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
 		.style("stroke-width", 1.5 / k + "px");
 	$("#zoom-in").text(text);
-	detailpage(d.properties.name);
+
 }
 
 function mymouseenter(d) {
@@ -100,7 +99,7 @@ function mymouseenter(d) {
 	var centroid = path.centroid(d);
 	x = centroid[0];
 	y = centroid[1];
-	text = d.properties.name;
+	text = d.properties.SIG_KOR_NM;
 
 	map.append("text")
 		.attr("x", x)
@@ -115,16 +114,7 @@ function mymouseleave(d) {
 }
 
 function detailpage(index) {
-	setCookie("province", index, 0.5);
-	p = "detail.html";
-	window.location.href=p;
+	p = "detail.html?index=" + index;
+	window.location.href="http://www.naver.com";
 }
-
-function setCookie(c_name,value,exdays) {
-	var exdate=new Date();
-	exdate.setDate(exdate.getDate() + exdays);
-	var c_value=escape(value) + ((exdays==null) ? "" : "; expires="+exdate.toUTCString());
-	document.cookie=c_name + "=" + c_value;
-}
-
 //$(document).ready(main);
