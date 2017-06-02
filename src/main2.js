@@ -17,8 +17,8 @@ var projection = d3.geo.mercator()
 
 var path = d3.geo.path().projection(projection);
 
-d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
-	var features = topojson.feature(data, data.objects["skorea_provinces_geo"]).features;
+d3.json("json/ulsan-topo.json", function(error, data) {
+	var features = topojson.feature(data, data.objects["TL_SCCO_SIG_crs84-m2s"]).features;
 
 	d3.csv("csv/Sido/pm10.csv", function(data) {
 		var rateById = {};
@@ -33,16 +33,16 @@ d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
 	  	.attr("dy", ".35em")
 		.attr("d", path)
 		.attr("class", "municipality-label")
-		.text(function(d){ return d.properties.name;})
-		.style("fill", function(d) {
+		.text(function(d){ return d.properties.SIG_KOR_NM;})
+		/*.style("fill", function(d) {
             return getcolor(rateById[d.properties.name]);
-        })
+        })*/
 		.on("click", myclick)
 		.on("mouseenter", mymouseenter)
 		.on("mouseleave", mymouseleave);
 	})
 });
-
+/*
 d3.csv("csv/electric.csv", function(data) {
 	map.selectAll("circle")
 		.data(data)
@@ -50,7 +50,7 @@ d3.csv("csv/electric.csv", function(data) {
 			.attr("cx", function(d) { return projection([d.lon, d.lat])[0]; })
 			.attr("cy", function(d) { return projection([d.lon, d.lat])[1]; })
 			.attr("r", 2);
-});
+});*/
 
 svg.append("text")
 	.attr("x", 10)
@@ -76,7 +76,7 @@ function myclick(d) {
 		y = centroid[1];
 		k = 4;
 		centered = d;
-		text = "zoom in " + d.properties.name;
+		text = "zoom in " + d.properties.SIG_KOR_NM;
 	} else {
 		x = width / 2;
 		y = height / 2;
@@ -99,7 +99,7 @@ function mymouseenter(d) {
 	var centroid = path.centroid(d);
 	x = centroid[0];
 	y = centroid[1];
-	text = d.properties.name;
+	text = d.properties.SIG_KOR_NM;
 
 	map.append("text")
 		.attr("x", x)
