@@ -1,9 +1,9 @@
 var width = 960,
     height = 500,
 	centered;
-	
+
 var pm = "pm10";
-	
+
 var svg = d3.select("#map").append("svg")
     .attr("width", width)
 	.attr("height", height);
@@ -20,13 +20,13 @@ var projection = d3.geo.mercator()
 var path = d3.geo.path().projection(projection);
 
 var province_name = getCookie("province");
-var map_path = "json/" + "gang" + "-topo.json";
+var map_path = "json/" + province_name + "-topo.json";
 console.log(map_path);
 
 d3.json(map_path, function(error, data) {
 	var features = topojson.feature(data, data.objects["TL_SCCO_SIG_crs84-m2s"]).features;
 
-	d3.csv("csv/" + "gang" + "_" + pm + ".csv", function(data) {
+	d3.csv("csv/" + province_name + "_" + pm + ".csv", function(data) {
 		var rateById = {};
 		data.forEach(function(d) {
 			console.log(d);
