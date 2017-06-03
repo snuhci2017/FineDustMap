@@ -12,6 +12,7 @@ svg .municipality-label {
   font-size: 12px;
   font-weight: 300;
   text-anchor: middle;
+  stroke: #6666cc;
 }
 
 svg .municipality-label:hover {
@@ -27,8 +28,9 @@ svg #map text {
   text-anchor: middle;
 }
 
-    svg { background-color: #eee; }	/*배경색 및 선 색깔*/    svg .municipality { fill: red; }
-    svg .municipality:hover { stroke: #333; }
+    svg { background-color: #eee; }	/*배경색 및 선 색깔*/
+    /*svg .municipality { fill: red; }
+    svg .municipality { stroke: #000; }
     svg .municipality.p0 { fill: rgb(247,251,255); }
     svg .municipality.p1 { fill: rgb(222,235,247); }
     svg .municipality.p2 { fill: rgb(198,219,239); }
@@ -37,7 +39,7 @@ svg #map text {
     svg .municipality.p5 { fill: rgb(66,146,198); }
     svg .municipality.p6 { fill: rgb(33,113,181); }
     svg .municipality.p7 { fill: rgb(8,81,156); }
-    svg .municipality.p8 { fill: rgb(8,48,107); }
+    svg .municipality.p8 { fill: rgb(8,48,107); }*/
     svg text { font-size: 20px; }/*
 svg #places text {
   color: #777;
@@ -45,3 +47,56 @@ svg #places text {
   text-anchor: start;
 }
 */
+
+
+/* The switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {display:none;}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;  border-radius: 34px;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}

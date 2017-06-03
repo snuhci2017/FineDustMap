@@ -1,6 +1,7 @@
 var width = 960,
     height = 500,
 	centered;
+var pm = "pm10";
 
 var svg = d3.select("#map").append("svg")
     .attr("width", width)
@@ -19,11 +20,11 @@ var path = d3.geo.path().projection(projection);
 
 d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
 	var features = topojson.feature(data, data.objects["skorea_provinces_geo"]).features;
-	
-	d3.csv("csv/pm10.csv", function(data) {
+
+	d3.csv("csv/" + pm + ".csv", function(data) {
 		var rateById = {};
 		data.forEach(function(d) {
-			console.log(d);
+//			console.log(d);
 			rateById[d.province] = +d.value;
 		});
 
@@ -42,15 +43,16 @@ d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
 		.on("mouseenter", mymouseenter)
 		.on("mouseleave", mymouseleave);
 	})
-});
 
-d3.csv("csv/electric.csv", function(data) {
-	map.selectAll("circle")
-		.data(data)
-		.enter().append("circle")
-			.attr("cx", function(d) { return projection([d.lon, d.lat])[0]; })
-			.attr("cy", function(d) { return projection([d.lon, d.lat])[1]; })
-			.attr("r", 2);
+  d3.csv("csv/electric.csv", function(data) {
+  	map.selectAll("circle")
+  		.data(data)
+  		.enter().append("circle")
+  			.attr("cx", function(d) { return projection([d.lon, d.lat])[0]; })
+  			.attr("cy", function(d) { return projection([d.lon, d.lat])[1]; })
+  			.attr("r", 2)
+        .style("fill","#f00");
+  });
 });
 
 svg.append("text")
@@ -127,4 +129,29 @@ function setCookie(c_name,value,exdays) {
 	document.cookie=c_name + "=" + c_value;
 }
 
+function pm_switch(chbx) {
+  if (chbx.checked == true)
+    pm = "pm25";
+  else
+    pm = "pm10";
+  console.log(pm);
+
+
+  d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
+  	var features = topojson.feature(data, data.objects["skorea_provinces_geo"]).features;
+
+  	d3.csv("csv/" + pm + ".csv", function(data) {
+  		var rateById = {};
+  		data.forEach(function(d) {
+  			rateById[d.province] = +d.value;
+  		});
+
+  		map.selectAll("path")
+  	    .data(features)
+  		.style("fill", function(d) {
+              return getcolor(rateById[d.properties.name]);
+          });
+  	});
+  });
+}
 //$(document).ready(main);
