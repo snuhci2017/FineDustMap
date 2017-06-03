@@ -1,7 +1,10 @@
 var width = 960,
     height = 500,
-	centered;
+    centered;
+
 var pm = "pm10";
+console.log(pm);
+$("#pm_chbx").prop("checked", false);
 
 var svg = d3.select("#map").append("svg")
     .attr("width", width)
@@ -93,7 +96,7 @@ function myclick(d) {
 		.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
 		.style("stroke-width", 1.5 / k + "px");
 	$("#zoom-in").text(text);
-	detailpage(d.properties.name);
+	detailpage(d.properties.name_eng);
 }
 
 function mymouseenter(d) {
@@ -134,8 +137,6 @@ function pm_switch(chbx) {
     pm = "pm25";
   else
     pm = "pm10";
-  console.log(pm);
-
 
   d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
   	var features = topojson.feature(data, data.objects["skorea_provinces_geo"]).features;
@@ -147,10 +148,10 @@ function pm_switch(chbx) {
   		});
 
   		map.selectAll("path")
-  	    .data(features)
-  		.style("fill", function(d) {
-              return getcolor(rateById[d.properties.name]);
-          });
+        .data(features)
+  		  .style("fill", function(d) {
+          return getcolor(rateById[d.properties.name]);
+        });
   	});
   });
 }
