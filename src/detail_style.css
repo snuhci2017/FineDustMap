@@ -21,6 +21,20 @@ svg .municipality-label:hover {
   text-anchor: middle;
 }
 
+div .map-container {
+  width: 480;
+  height: 500;
+  display: inline;
+  float: left;
+}
+
+div .dust-chart {
+  width: 480;
+  height: 500;
+  display: inline;
+  float: right;
+}
+
 svg #map text {
   color: #333;
   font-size: 10px;
