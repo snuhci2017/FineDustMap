@@ -107,7 +107,7 @@ function getcolor(val) {
 	else if(val < 151 && val >= 81) return "#fdae61";
 	else if(val < 81 && val >= 31) return "#a6d96a";
 	else if(val < 31 && val >= 0) return "#1a9641";
-	else return "#000";
+	else return #FFF
 }
 
 function myclick(d) {
