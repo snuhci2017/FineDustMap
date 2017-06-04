@@ -12,6 +12,7 @@ svg .municipality-label {
   font-size: 12px;
   font-weight: 300;
   text-anchor: middle;
+  stroke: #6666cc;
 }
 
 svg .municipality-label:hover {
@@ -42,7 +43,7 @@ svg #map text {
 }
 
     svg { background-color: #eee; }	/*배경색 및 선 색깔*/    svg .municipality { fill: red; }
-    svg .municipality:hover { stroke: #333; }
+ /* svg .municipality:hover { stroke: #333; }
     svg .municipality.p0 { fill: rgb(247,251,255); }
     svg .municipality.p1 { fill: rgb(222,235,247); }
     svg .municipality.p2 { fill: rgb(198,219,239); }
@@ -51,7 +52,7 @@ svg #map text {
     svg .municipality.p5 { fill: rgb(66,146,198); }
     svg .municipality.p6 { fill: rgb(33,113,181); }
     svg .municipality.p7 { fill: rgb(8,81,156); }
-    svg .municipality.p8 { fill: rgb(8,48,107); }
+    svg .municipality.p8 { fill: rgb(8,48,107); }*/
     svg text { font-size: 20px; }/*
 svg #places text {
   color: #777;

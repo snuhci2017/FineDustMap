@@ -30,7 +30,7 @@ d3.json(map_path, function(error, data) {
 	d3.csv("csv/" + province_name + "_" + pm + ".csv", function(data) {
 		var rateById = {};
 		data.forEach(function(d) {
-			console.log(d);
+			//console.log(d);
 			rateById[d.gungu] = +d.value;
 		});
 
@@ -87,16 +87,15 @@ function pm_switch(chbx) {
     pm = "pm25";
   else
     pm = "pm10";
-  console.log(pm);
+//  console.log(pm);
 
+  d3.json(map_path, function(error, data) {
+  	var features = topojson.feature(data, data.objects["TL_SCCO_SIG_crs84-m2s"]).features;
 
-  d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
-  	var features = topojson.feature(data, data.objects["skorea_provinces_geo"]).features;
-
-  	d3.csv("csv/" + pm + ".csv", function(data) {
+  	d3.csv("csv/" + province_name + "_" + pm + ".csv", function(data) {
   		var rateById = {};
   		data.forEach(function(d) {
-  			rateById[d.province] = +d.value;
+  			rateById[d.gungu] = +d.value;
   		});
 
   		map.selectAll("path")
