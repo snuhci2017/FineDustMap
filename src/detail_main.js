@@ -3,6 +3,7 @@ var width = 960,
 	centered;
 
 var pm = "pm10";
+pm = getCookie("pm");
 
 var svg = d3.select("#map").append("svg")
     .attr("width", width)

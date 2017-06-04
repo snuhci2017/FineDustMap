@@ -47,15 +47,53 @@ d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
 		.on("mouseleave", mymouseleave);
 	})
 
-  d3.csv("csv/electric.csv", function(data) {
-  	map.selectAll("circle")
-  		.data(data)
-  		.enter().append("circle")
-  			.attr("cx", function(d) { return projection([d.lon, d.lat])[0]; })
-  			.attr("cy", function(d) { return projection([d.lon, d.lat])[1]; })
-  			.attr("r", 2)
-        .style("fill","#f00");
-  });
+	d3.csv("csv/electric.csv", function(data) {
+		map.selectAll("circle")
+			.data(data)
+			.enter().append("circle")
+				.attr("cx", function(d) { return projection([d.lon, d.lat])[0]; })
+				.attr("cy", function(d) { return projection([d.lon, d.lat])[1]; })
+				.attr("r", 2)
+			.style("fill","#f00");
+	});
+  
+	d3.csv("csv/wind.csv", function(data) {
+		map.selectAll("marker")
+			.data(data)
+			.enter().append("marker")
+				.attr("class", "arrow")
+				.attr("refX", 2)
+				.attr("refY", 6)
+				.attr("markerWidth", 13)
+				.attr("markerHeight", 13)
+				.attr("orient", "auto")
+			.append("path")
+				.attr("d", function(d) {
+					var x = +d.lon + (+d.speed * Math.cos(toRadians(+d.direction)) * 0.1);
+					var y = +d.lat + (+d.speed * Math.sin(toRadians(+d.direction)) * 0.1);
+					var p = "M2,2 L2,11 L10,6 L2,2";
+					return p;
+				})
+			.style("fill","#foo");
+		
+		map.selectAll("line")
+			.data(data)
+			.enter().append("line")
+				.attr("class", "line")
+				.attr("x1", function(d) { return projection([d.lon, d.lat])[0]; })
+				.attr("y1", function(d) { return projection([d.lon, d.lat])[1]; })
+				.attr("x2", function(d) { 
+					var x = +d.lon + (+d.speed * Math.cos(toRadians(+d.direction)) * 0.1);
+					var y = +d.lat + (+d.speed * Math.sin(toRadians(+d.direction)) * 0.1);
+					return projection([x, y])[0];
+				})
+				.attr("y2", function(d) { 
+					var x = +d.lon + (+d.speed * Math.cos(toRadians(+d.direction)) * 0.1);
+					var y = +d.lat + (+d.speed * Math.sin(toRadians(+d.direction)) * 0.1);
+					return projection([x, y])[1];
+				})
+			.style("fill","#foo");
+	});
 });
 
 svg.append("text")
@@ -96,7 +134,7 @@ function myclick(d) {
 		.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
 		.style("stroke-width", 1.5 / k + "px");
 	$("#zoom-in").text(text);
-	detailpage(d.properties.name_eng);
+	detailpage(d.properties.name_eng, pm);
 }
 
 function mymouseenter(d) {
@@ -119,8 +157,9 @@ function mymouseleave(d) {
 	$("#mouse-enter").remove();
 }
 
-function detailpage(index) {
-	setCookie("province", index, 0.5);
+function detailpage(index1, index2) {
+	setCookie("province", index1, 0.5);
+	setCookie("pm", index2, 0.5);
 	p = "detail.html";
 	window.location.href=p;
 }
@@ -155,4 +194,73 @@ function pm_switch(chbx) {
   	});
   });
 }
+
+function toRadians (angle) {
+  return angle * (Math.PI / 180);
+}
+/*
+var line = d3.svg.line()
+                 .x( function(point) { return point.lx; })
+                 .y( function(point) { return point.ly; });
+
+function lineData(d){
+    // i'm assuming here that supplied datum 
+    // is a link between 'source' and 'target'
+    var points = [
+        {lx: d.source.x, ly: d.source.y},
+        {lx: d.target.x, ly: d.target.y}
+    ];
+    return line(points);
+}
+
+var path = svg.append("path")
+.data([{source: {x : 0, y : 0}, target: {x : 80, y : 80}}])
+    .attr("class", "line")
+	    //.style("marker-end", "url(#arrow)")
+    .attr("d", lineData);
+//var arrow = svg.append("svg:path")
+	//.attr("d", "M2,2 L2,11 L10,6 L2,2");
+
+
+console.log(d3.svg.symbol())
+
+var arrow = svg.append("svg:path")
+	.attr("d", d3.svg.symbol().type("triangle-down")(10,1));
+
+
+
+  arrow.transition()
+      .duration(2000)
+      .ease("linear")
+      .attrTween("transform", translateAlong(path.node()))
+      //.each("end", transition);
+
+
+// Returns an attrTween for translating along the specified path element.
+function translateAlong(path) {
+  var l = path.getTotalLength();
+    var ps = path.getPointAtLength(0);
+    var pe = path.getPointAtLength(l);
+    var angl = Math.atan2(pe.y - ps.y, pe.x - ps.x) * (180 / Math.PI) - 90;
+    var rot_tran = "rotate(" + angl + ")";
+  return function(d, i, a) {
+    console.log(d);
+    
+    return function(t) {
+      var p = path.getPointAtLength(t * l);
+      return "translate(" + p.x + "," + p.y + ") " + rot_tran;
+    };
+  };
+}
+
+var totalLength = path.node().getTotalLength();
+
+    path
+      .attr("stroke-dasharray", totalLength + " " + totalLength)
+      .attr("stroke-dashoffset", totalLength)
+      .transition()
+        .duration(2000)        
+        .ease("linear")
+        .attr("stroke-dashoffset", 0);
+*/
 //$(document).ready(main);
