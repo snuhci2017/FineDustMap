@@ -31,22 +31,33 @@ d3.csv("csv/TS_DL_AVG.csv", function(data) {
         .range([0, width])
         .domain(d3.extent(province_data, function(d) { return d.date; }));
 
-  var y = d3.scale.linear()
+  var y1 = d3.scale.linear()
       .range([height, 0])
-      .domain([
-        d3.min(province_data, function(d){return d.a_pm10;}),
-        d3.max(province_data, function(d){return d.a_pm10;})
+      .domain([0, 200
+        // d3.min(province_data, function(d){return d.a_pm10;}),
+        // d3.max(province_data, function(d){return d.a_pm10;})
+      ]);
+
+  var y2 = d3.scale.linear()
+      .range([height, 0])
+      .domain([0, 80
+        // d3.min(province_data, function(d){return d.a_pm25;}),
+        // d3.max(province_data, function(d){return d.a_pm25;})
       ]);
 
   console.log("min" + d3.min(province_data, function(d){return d.a_pm10;}));
   console.log("max" + d3.max(province_data, function(d){return d.a_pm10;}));
 
-  
-  var line = d3.svg.line()
-      .x(function(d) { return x(d.date); })
-      .y(function(d) { return y(d.a_pm10); });
 
-      // console.log(province_data);
+  var line1 = d3.svg.line()
+      .x(function(d) { return x(d.date); })
+      .y(function(d) { return y1(d.a_pm10); });
+
+
+  var line2 = d3.svg.line()
+      .x(function(d) { return x(d.date); })
+      .y(function(d) { return y2(d.a_pm25); });
+
   chart.append("g")
       .attr("class", "axis axis--x")
       .attr("transform", "translate(0," + height + ")")
@@ -57,10 +68,9 @@ d3.csv("csv/TS_DL_AVG.csv", function(data) {
       .attr("fill", "#000")
       .text("date");
 
-
   chart.append("g")
       .attr("class", "axis axis--y")
-      .call(d3.svg.axis().scale(y).orient('left'))
+      .call(d3.svg.axis().scale(y1).orient('left'))
     .append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", 6)
@@ -68,10 +78,26 @@ d3.csv("csv/TS_DL_AVG.csv", function(data) {
       .attr("fill", "#000")
       .text("PM10");
 
+  chart.append("g")
+      .attr("transform", "translate(" + width + ", 0)")
+      .attr("class", "axis axis--y2")
+      .call(d3.svg.axis().scale(y2).orient('right'))
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", "0.71em")
+      .attr("fill", "#000")
+      .text("PM25");
+
   chart.append("path")
     .attr("class", "line")
-    .attr("d", line(province_data))
-  //
+    .attr("d", line1(province_data))
+
+  chart.append("path")
+    .attr("class", "line")
+    .attr("d", line2(province_data))
+    .style("stroke", "#f00");
+
   // var city = g.selectAll(".city")
   //   .data(cities)
   //   .enter().append("g")
