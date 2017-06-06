@@ -107,7 +107,6 @@ input:checked + .slider:before {
     fill: white;
 }
 
-#marker {
-  stroke: black;
-    fill: black;
+div.ui-slider-range.ui-widget-header {
+    background: #ffdd00;
 }

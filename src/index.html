@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8">
     <link rel='stylesheet' type='text/css' href='style.css'>
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
   </head>
 
   <body>
@@ -12,8 +13,14 @@
     </label>
 
     <div id="map"></div>
+	<div id="player">
+	  <input id="play-button" type="image" src="play-circle.png">
+	  <span id="clock">date</span>
+	  <div id="slider-range"></div>
+	</div>
     <script src='https://code.jquery.com/jquery-3.1.0.min.js'></script>
-    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 	<script src="http://d3js.org/topojson.v1.min.js"></script>
     <script src='main.js'></script>
   </body>

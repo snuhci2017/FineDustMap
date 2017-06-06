@@ -2,9 +2,23 @@ var width = 960,
     height = 500,
     centered;
 
+var playing = false;
 var pm = "pm10";
 console.log(pm);
 $("#pm_chbx").prop("checked", false);
+$( function() {
+		$( "#slider-range" ).slider({
+			range: true,
+			min: 0,
+			max: 500,
+			values: [ 75, 300 ],
+			slide: function( event, ui ) {
+				$( "#clock" ).val( ui.values[ 0 ] + " - " + ui.values[ 1 ] );
+			}
+		});
+		$( "#clock" ).val( $( "#slider-range" ).slider( "values", 0 ) +
+			" - " + $( "#slider-range" ).slider( "values", 1 ) );
+} );
 
 var svg = d3.select("#map").append("svg")
     .attr("width", width)
@@ -14,6 +28,18 @@ var map = svg.append("g")
 	.attr("id", "map");
 	//append 'g', with 'id' 'plants' - 공장 위치 시각화
 
+// arrow header 등록
+map.append("svg:defs").append("svg:marker")
+    .attr("id", "arrow-header")
+    .attr("refX", 3)
+    .attr("refY", 3)
+    .attr("markerWidth", 6)
+    .attr("markerHeight", 6)
+    .attr("orient", "auto")
+    .append("path")
+    .attr("d", "M0,0 L0,6 L6,3 L0,0")
+    .style("fill", "blue");
+	
 var projection = d3.geo.mercator()
     .scale(2500)
 	.center([128,36])
@@ -58,24 +84,7 @@ d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
 	});
   
 	d3.csv("csv/wind.csv", function(data) {
-		map.selectAll("marker")
-			.data(data)
-			.enter().append("marker")
-				.attr("class", "arrow")
-				.attr("refX", 2)
-				.attr("refY", 6)
-				.attr("markerWidth", 13)
-				.attr("markerHeight", 13)
-				.attr("orient", "auto")
-			.append("path")
-				.attr("d", function(d) {
-					var x = +d.lon + (+d.speed * Math.cos(toRadians(+d.direction)) * 0.1);
-					var y = +d.lat + (+d.speed * Math.sin(toRadians(+d.direction)) * 0.1);
-					var p = "M2,2 L2,11 L10,6 L2,2";
-					return p;
-				})
-			.style("fill","#foo");
-		
+
 		map.selectAll("line")
 			.data(data)
 			.enter().append("line")
@@ -83,16 +92,18 @@ d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
 				.attr("x1", function(d) { return projection([d.lon, d.lat])[0]; })
 				.attr("y1", function(d) { return projection([d.lon, d.lat])[1]; })
 				.attr("x2", function(d) { 
-					var x = +d.lon + (+d.speed * Math.cos(toRadians(+d.direction)) * 0.1);
-					var y = +d.lat + (+d.speed * Math.sin(toRadians(+d.direction)) * 0.1);
+					var x = +d.lon + (+d.speed * Math.cos(toRadians(+d.direction)) * 0.08);
+					var y = +d.lat + (+d.speed * Math.sin(toRadians(+d.direction)) * 0.08);
 					return projection([x, y])[0];
 				})
 				.attr("y2", function(d) { 
-					var x = +d.lon + (+d.speed * Math.cos(toRadians(+d.direction)) * 0.1);
-					var y = +d.lat + (+d.speed * Math.sin(toRadians(+d.direction)) * 0.1);
+					var x = +d.lon + (+d.speed * Math.cos(toRadians(+d.direction)) * 0.08);
+					var y = +d.lat + (+d.speed * Math.sin(toRadians(+d.direction)) * 0.08);
 					return projection([x, y])[1];
 				})
-			.style("fill","#foo");
+			  .attr("stroke-width", 0.8)
+			  .attr("stroke", "blue")
+			  .attr("marker-end", "url(#arrow-header)");
 	});
 });
 
@@ -198,37 +209,41 @@ function pm_switch(chbx) {
 function toRadians (angle) {
   return angle * (Math.PI / 180);
 }
-/*
-var line = d3.svg.line()
-                 .x( function(point) { return point.lx; })
-                 .y( function(point) { return point.ly; });
 
-function lineData(d){
-    // i'm assuming here that supplied datum 
-    // is a link between 'source' and 'target'
-    var points = [
-        {lx: d.source.x, ly: d.source.y},
-        {lx: d.target.x, ly: d.target.y}
-    ];
-    return line(points);
+function changeColor(elem) {
+	elem.transition().duration(0)
+      .style("fill", function(d) { return "#FFF"; })
+    .transition().duration(5)
+      .style("background", "yellow")
+    .transition().delay(1000).duration(5000)
+      .style("background", "red");
 }
 
-var path = svg.append("path")
-.data([{source: {x : 0, y : 0}, target: {x : 80, y : 80}}])
-    .attr("class", "line")
-	    //.style("marker-end", "url(#arrow)")
-    .attr("d", lineData);
-//var arrow = svg.append("svg:path")
-	//.attr("d", "M2,2 L2,11 L10,6 L2,2");
-
-
-console.log(d3.svg.symbol())
-
-var arrow = svg.append("svg:path")
-	.attr("d", d3.svg.symbol().type("triangle-down")(10,1));
-
-
-
+function animateMap() {
+  var timer;  
+  d3.select('#play-button')  
+    .on('click', function() {  
+      if(playing == false) {  // if the map is currently playing
+        timer = setInterval(function(){   // set a JS interval
+          if(currentAttribute < attributeArray.length-1) {  
+              currentAttribute +=1;  // increment the current attribute counter
+          } else {
+              currentAttribute = 0;  // or reset it to zero
+          }
+          sequenceMap();  // update the representation of the map 
+          d3.select('#clock').html(attributeArray[currentAttribute]);  // update the clock
+        }, 2000);
+      
+        d3.select(this).html('stop');  // change the button label to stop
+        playing = true;   // change the status of the animation
+      } else {    // else if is currently playing
+        clearInterval(timer);   // stop the animation by clearing the interval
+        d3.select(this).html('play');   // change the button label to play
+        playing = false;   // change the status again
+      }
+  });
+}
+/*
   arrow.transition()
       .duration(2000)
       .ease("linear")
