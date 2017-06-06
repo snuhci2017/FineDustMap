@@ -14,11 +14,9 @@ var chart = svg.append("g")
           .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 var parseTime = d3.time.format("%Y%m%d").parse;
-
-var t;
+var province_data = [];
 
 d3.csv("csv/TS_DL_AVG.csv", function(data) {
-  var province_data = [];
 
   data.forEach(function (d) {
     if(d.LOC == province_name) {
@@ -29,7 +27,6 @@ d3.csv("csv/TS_DL_AVG.csv", function(data) {
       province_data.push(d);
     }
   });
-  console.log(province_data);
 
   var x = d3.time.scale()
         .range([0, width])
@@ -51,7 +48,6 @@ d3.csv("csv/TS_DL_AVG.csv", function(data) {
 
   console.log("min" + d3.min(province_data, function(d){return d.a_pm10;}));
   console.log("max" + d3.max(province_data, function(d){return d.a_pm10;}));
-  t = province_data;
 
   var line1 = d3.svg.line()
       .x(function(d) { return x(d.date); })
