@@ -15,6 +15,8 @@ var chart = svg.append("g")
 
 var parseTime = d3.time.format("%Y%m%d").parse;
 
+var t;
+
 d3.csv("csv/TS_DL_AVG.csv", function(data) {
   var province_data = [];
 
@@ -22,6 +24,8 @@ d3.csv("csv/TS_DL_AVG.csv", function(data) {
     if(d.LOC == province_name) {
       // console.log(d.DATE1);
       d.date = parseTime(d.DATE1);
+      d.a_pm10 = Number(d.a_pm10);
+      d.a_pm25 = Number(d.a_pm25);
       province_data.push(d);
     }
   });
@@ -33,21 +37,21 @@ d3.csv("csv/TS_DL_AVG.csv", function(data) {
 
   var y1 = d3.scale.linear()
       .range([height, 0])
-      .domain([0, 200
-        // d3.min(province_data, function(d){return d.a_pm10;}),
-        // d3.max(province_data, function(d){return d.a_pm10;})
+      .domain([
+        d3.min(province_data, function(d){return d.a_pm10;}),
+        d3.max(province_data, function(d){return d.a_pm10;})
       ]);
 
   var y2 = d3.scale.linear()
       .range([height, 0])
-      .domain([0, 80
-        // d3.min(province_data, function(d){return d.a_pm25;}),
-        // d3.max(province_data, function(d){return d.a_pm25;})
+      .domain([
+        d3.min(province_data, function(d){return d.a_pm25;}),
+        d3.max(province_data, function(d){return d.a_pm25;})
       ]);
 
   console.log("min" + d3.min(province_data, function(d){return d.a_pm10;}));
   console.log("max" + d3.max(province_data, function(d){return d.a_pm10;}));
-
+  t = province_data;
 
   var line1 = d3.svg.line()
       .x(function(d) { return x(d.date); })
