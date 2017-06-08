@@ -4,21 +4,63 @@ var width = 960,
 
 var playing = false;
 var pm = "pm10";
-console.log(pm);
+var start_date = new Date("2016-01-01");
+var end_date = new Date("2016-12-31");
+var attributeArray = [];
+var curr_date = new Date(start_date);
+
 $("#pm_chbx").prop("checked", false);
 $( function() {
 		$( "#slider-range" ).slider({
 			range: true,
-			min: 0,
-			max: 500,
-			values: [ 75, 300 ],
+			min: new Date("2016-01-01").getTime()/1000,
+			max: new Date("2016-12-31").getTime()/1000,
+			values: [new Date("2016-01-01").getTime()/1000, new Date("2016-12-31").getTime()/1000],
 			slide: function( event, ui ) {
-				$( "#clock" ).val( ui.values[ 0 ] + " - " + ui.values[ 1 ] );
+				start_date = new Date(ui.values[ 0 ] *1000);
+				end_date = new Date(ui.values[ 1 ] *1000);
+				curr_date = new Date(start_date);
+				$( "#clock" ).text(start_date.toDateString() + " - " + end_date.toDateString());
 			}
 		});
+		/*
 		$( "#clock" ).val( $( "#slider-range" ).slider( "values", 0 ) +
 			" - " + $( "#slider-range" ).slider( "values", 1 ) );
+		*/
 } );
+
+$("#play-button").click(function(d) {
+	var timer;
+	if(playing == false) { 
+		//getData();
+		d3.select(this).attr('src', 'pause-circle.png');
+		timer = setInterval(function(){
+			sequenceMap();
+			if(curr_date < end_date) {  
+				curr_date.setDate(curr_date.getDate() + 1);
+			} else {
+				curr_date.setDate(start_date.getDate()); 
+			}
+			
+			$( "#slider-range" )
+					.slider('values', [curr_date.getTime()/1000, end_date.getTime()/1000]);
+			$( "#clock" ).text(curr_date + " - " + end_date);
+        }, 1000);
+        playing = true; 
+      } else {    
+        clearInterval(timer);   
+        d3.select(this).attr('src', 'play-circle.png');   
+        playing = false;
+		
+		// reset the slider and the clock values
+		d1 = new Date("2016-01-01"); 
+		d2 = new Date("2016-12-31");
+		$( "#slider-range" ).slider('values', d1.getTime()/1000, d2.getTime()/1000);
+		$( "#clock" ).text(d1 + " - " + d2);
+		
+		// 화면을 최신 데이터에 맞도록 맞춤
+      }
+});
 
 var svg = d3.select("#map").append("svg")
     .attr("width", width)
@@ -26,8 +68,7 @@ var svg = d3.select("#map").append("svg")
 
 var map = svg.append("g")
 	.attr("id", "map");
-	//append 'g', with 'id' 'plants' - 공장 위치 시각화
-
+	
 // arrow header 등록
 map.append("svg:defs").append("svg:marker")
     .attr("id", "arrow-header")
@@ -53,14 +94,12 @@ d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
 	d3.csv("csv/" + pm + ".csv", function(data) {
 		var rateById = {};
 		data.forEach(function(d) {
-//			console.log(d);
 			rateById[d.province] = +d.value;
 		});
 
 		map.selectAll("path")
 	    .data(features)
 	  .enter().append("path")
-	  //	.attr("transform", function(d){ return "translate("+path.centroid(d)+")"; })
 	  	.attr("dy", ".35em")
 		.attr("d", path)
 		.attr("class", "municipality-label")
@@ -113,6 +152,8 @@ svg.append("text")
 	.attr("font-size", "20px")
 	.attr("id", "zoom-in");
 
+getData();
+	
 function getcolor(val) {
 	if(val >= 151) return "#d7191c";
 	else if(val < 151 && val >= 81) return "#fdae61";
@@ -188,21 +229,16 @@ function pm_switch(chbx) {
   else
     pm = "pm10";
 
-  d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
-  	var features = topojson.feature(data, data.objects["skorea_provinces_geo"]).features;
-
-  	d3.csv("csv/" + pm + ".csv", function(data) {
-  		var rateById = {};
-  		data.forEach(function(d) {
-  			rateById[d.province] = +d.value;
-  		});
-
-  		map.selectAll("path")
-        .data(features)
-  		  .style("fill", function(d) {
-          return getcolor(rateById[d.properties.name]);
-        });
+  d3.csv("csv/" + pm + ".csv", function(data) {
+    var rateById = {};
+  	data.forEach(function(d) {
+  		rateById[d.province] = +d.value;
   	});
+
+  	map.selectAll("path")
+  	  .style("fill", function(d) {
+        return getcolor(rateById[d.properties.name]);
+      });
   });
 }
 
@@ -219,30 +255,47 @@ function changeColor(elem) {
       .style("background", "red");
 }
 
-function animateMap() {
-  var timer;  
-  d3.select('#play-button')  
-    .on('click', function() {  
-      if(playing == false) {  // if the map is currently playing
-        timer = setInterval(function(){   // set a JS interval
-          if(currentAttribute < attributeArray.length-1) {  
-              currentAttribute +=1;  // increment the current attribute counter
-          } else {
-              currentAttribute = 0;  // or reset it to zero
-          }
-          sequenceMap();  // update the representation of the map 
-          d3.select('#clock').html(attributeArray[currentAttribute]);  // update the clock
-        }, 2000);
-      
-        d3.select(this).html('stop');  // change the button label to stop
-        playing = true;   // change the status of the animation
-      } else {    // else if is currently playing
-        clearInterval(timer);   // stop the animation by clearing the interval
-        d3.select(this).html('play');   // change the button label to play
-        playing = false;   // change the status again
-      }
-  });
+function getData() {
+	d3.csv("csv/TS_DL_AVG.csv", function(data) {
+		var cnt = 0;
+		data.forEach(function(d) {
+			attributeArray.push(d);
+		});
+	});
 }
+
+Date.prototype.yyyymmdd = function() {
+  var mm = this.getMonth() + 1; 
+  var dd = this.getDate();
+
+  return [this.getFullYear(),
+          (mm>9 ? '' : '0') + mm,
+          (dd>9 ? '' : '0') + dd
+         ].join('');
+};
+
+function sequenceMap() {
+	var result = $.grep(attributeArray, function(e){ 
+		var date = curr_date.yyyymmdd();
+		return date === e["DATE1"]; 
+	});
+	
+	result.forEach(function(d1) {
+		map.selectAll("path")
+			.style("fill", function(d2) {
+				var val = $.grep(result, function(c) {
+					console.log(c["LOC"]);
+					return c["LOC"] === d2.properties.name;
+				});
+				console.log(val);
+				if(pm === "pm10")
+					return getcolor(val["a_pm10"]);
+				else
+					return getcolor(val["a_pm25"]);
+			});
+	});
+}
+
 /*
   arrow.transition()
       .duration(2000)
