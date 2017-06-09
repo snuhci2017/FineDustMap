@@ -7,8 +7,12 @@ var pm = "pm10";
 var start_date = new Date("2016-01-01");
 var end_date = new Date("2016-12-31");
 var attributeArray = [];
+var windArray = [];
 var curr_date = new Date(start_date);
 var timer;
+var wind_name = ["Buan", "Chilbaldo", "Chujado", "Deokjeokdo", "Donghae", "Geojaedo", "Geomundo", 
+				"Incheon", "Marado", "Oeyeondo", "Pohang", "Seogwipo", "Sinan", "Tongyoung", 
+				"Uljin", "Ulleungdo", "Ulsan"];
 
 $("#pm_chbx").prop("checked", false);
 $( function() {
@@ -160,7 +164,7 @@ svg.append("text")
 	.attr("font-size", "20px")
 	.attr("id", "zoom-in");
 
-getData();
+//getData();
 	
 function getcolor(val) {
 	if(val >= 151) return "#d7191c";
@@ -254,22 +258,21 @@ function toRadians (angle) {
   return angle * (Math.PI / 180);
 }
 
-function changeColor(elem) {
-	elem.transition().duration(0)
-      .style("fill", function(d) { return "#FFF"; })
-    .transition().duration(5)
-      .style("background", "yellow")
-    .transition().delay(1000).duration(5000)
-      .style("background", "red");
-}
-
 function getData() {
 	d3.csv("csv/TS_DL_AVG.csv", function(data) {
-		var cnt = 0;
 		data.forEach(function(d) {
 			attributeArray.push(d);
 		});
 	});
+	
+	for(var i = 0; i < wind_name.length; i++) {
+		var wind_path = "csv/" + wind_name[i] + "_wind.csv";
+		d3.csv(wind_path, function(data) {
+			data.forEach(function(d) {
+				windArray.push(d);
+			});
+		});
+	}
 }
 
 Date.prototype.yyyymmdd = function() {
@@ -305,39 +308,4 @@ function sequenceMap() {
 	//});
 }
 
-/*
-  arrow.transition()
-      .duration(2000)
-      .ease("linear")
-      .attrTween("transform", translateAlong(path.node()))
-      //.each("end", transition);
-
-
-// Returns an attrTween for translating along the specified path element.
-function translateAlong(path) {
-  var l = path.getTotalLength();
-    var ps = path.getPointAtLength(0);
-    var pe = path.getPointAtLength(l);
-    var angl = Math.atan2(pe.y - ps.y, pe.x - ps.x) * (180 / Math.PI) - 90;
-    var rot_tran = "rotate(" + angl + ")";
-  return function(d, i, a) {
-    console.log(d);
-    
-    return function(t) {
-      var p = path.getPointAtLength(t * l);
-      return "translate(" + p.x + "," + p.y + ") " + rot_tran;
-    };
-  };
-}
-
-var totalLength = path.node().getTotalLength();
-
-    path
-      .attr("stroke-dasharray", totalLength + " " + totalLength)
-      .attr("stroke-dashoffset", totalLength)
-      .transition()
-        .duration(2000)        
-        .ease("linear")
-        .attr("stroke-dashoffset", 0);
-*/
-//$(document).ready(main);
+$(document).ready(getData);
