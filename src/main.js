@@ -8,6 +8,7 @@ var start_date = new Date("2016-01-01");
 var end_date = new Date("2016-12-31");
 var attributeArray = [];
 var curr_date = new Date(start_date);
+var timer;
 
 $("#pm_chbx").prop("checked", false);
 $( function() {
@@ -30,36 +31,43 @@ $( function() {
 } );
 
 $("#play-button").click(function(d) {
-	var timer;
-	if(playing == false) { 
+	if(playing === false) { 
 		//getData();
-		d3.select(this).attr('src', 'pause-circle.png');
+		d3.select(this).attr('src', 'stop-circle.png');
 		timer = setInterval(function(){
 			sequenceMap();
 			if(curr_date < end_date) {  
 				curr_date.setDate(curr_date.getDate() + 1);
+				$( "#slider-range" )
+					.slider('values', [curr_date.getTime()/1000, end_date.getTime()/1000]);
+				$( "#clock" ).text(curr_date + " - " + end_date);
 			} else {
-				curr_date.setDate(start_date.getDate()); 
+				clearInterval(timer);
+				$("#play-button").attr('src', 'play-circle.png');
+				playing = false;
+				start_date = new Date("2016-01-01");
+				end_date = new Date("2016-12-31");
+				curr_date = new Date(start_date);
+				$( "#slider-range" )
+					.slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
+				$( "#clock" ).text(start_date + " - " + end_date);
 			}
 			
-			$( "#slider-range" )
-					.slider('values', [curr_date.getTime()/1000, end_date.getTime()/1000]);
-			$( "#clock" ).text(curr_date + " - " + end_date);
         }, 1000);
         playing = true; 
-      } else {    
+    } else {
         clearInterval(timer);   
-        d3.select(this).attr('src', 'play-circle.png');   
+        $("#play-button").attr('src', 'play-circle.png');   
         playing = false;
-		
-		// reset the slider and the clock values
-		d1 = new Date("2016-01-01"); 
-		d2 = new Date("2016-12-31");
-		$( "#slider-range" ).slider('values', d1.getTime()/1000, d2.getTime()/1000);
-		$( "#clock" ).text(d1 + " - " + d2);
+		start_date = new Date("2016-01-01");
+		end_date = new Date("2016-12-31");
+		curr_date = new Date(start_date);
+		$( "#slider-range" )
+			.slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
+		$( "#clock" ).text(start_date + " - " + end_date);
 		
 		// 화면을 최신 데이터에 맞도록 맞춤
-      }
+    }
 });
 
 var svg = d3.select("#map").append("svg")
@@ -280,20 +288,21 @@ function sequenceMap() {
 		return date === e["DATE1"]; 
 	});
 	
-	result.forEach(function(d1) {
+	//result.forEach(function(d1) {
 		map.selectAll("path")
 			.style("fill", function(d2) {
 				var val = $.grep(result, function(c) {
-					console.log(c["LOC"]);
-					return c["LOC"] === d2.properties.name;
+					return c.LOC === d2.properties.name_eng;
 				});
-				console.log(val);
-				if(pm === "pm10")
-					return getcolor(val["a_pm10"]);
-				else
-					return getcolor(val["a_pm25"]);
+				if(val.length > 0) {
+					if(pm === "pm10") {
+						return getcolor(val[0].a_pm10);
+					} else {
+						return getcolor(val[0].a_pm25);
+					}
+				}
 			});
-	});
+	//});
 }
 
 /*
