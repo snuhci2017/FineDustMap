@@ -285,6 +285,16 @@ Date.prototype.yyyymmdd = function() {
          ].join('');
 };
 
+Date.prototype.dashform = function() {
+  var mm = this.getMonth() + 1; 
+  var dd = this.getDate();
+
+  return [this.getFullYear(),
+          (mm>9 ? '' : '0') + mm,
+          (dd>9 ? '' : '0') + dd
+         ].join('-');
+}
+
 function sequenceMap() {
 	var result = $.grep(attributeArray, function(e){ 
 		var date = curr_date.yyyymmdd();
@@ -305,6 +315,48 @@ function sequenceMap() {
 					}
 				}
 			});
+	var wind_result = $.grep(windArray, function(e){ 
+		var date = curr_date.dashform();
+		return date === e["date"]; 
+	});
+	
+		map.selectAll("line")
+			.attr("x2", function(d) { 
+				var val = $.grep(wind_result, function(c) {
+					return c.buoy === d.buoy;
+				});
+				var x, y;
+				if(val.length === 0) {
+					x = +d.lon + (+d.speed * Math.cos(toRadians(+d.direction)) * 0.08);
+					y = +d.lat + (+d.speed * Math.sin(toRadians(+d.direction)) * 0.08);
+				} else {
+					x = +d.lon + (+val[0].speed * Math.cos(toRadians(+val[0].direction)) * 0.08);
+					y = +d.lat + (+val[0].speed * Math.sin(toRadians(+val[0].direction)) * 0.08);
+				}
+				return projection([x, y])[0];
+			})
+			.attr("y2", function(d) { 
+				var val = $.grep(wind_result, function(c) {
+					return c.buoy === d.buoy;
+				});
+				var x, y;
+				if(val.length === 0) {
+					x = +d.lon + (+d.speed * Math.cos(toRadians(+d.direction)) * 0.08);
+					y = +d.lat + (+d.speed * Math.sin(toRadians(+d.direction)) * 0.08);
+				} else {
+					x = +d.lon + (+val[0].speed * Math.cos(toRadians(+val[0].direction)) * 0.08);
+					y = +d.lat + (+val[0].speed * Math.sin(toRadians(+val[0].direction)) * 0.08);
+				}
+				return projection([x, y])[1];
+			})
+			
+		map.select("#arrow-header")
+			.selectAll("path")
+				.style("fill", "blue");
+			//.attr("stroke-width", 0.8)
+			//.attr("stroke", "blue")
+			//.attr("marker-end", "url(#arrow-header)");
+	
 	//});
 }
 
