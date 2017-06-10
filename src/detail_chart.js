@@ -1,5 +1,5 @@
 var svg_width = 960, svg_height = 500,
-    margin = {top: 20, right: 80, bottom: 30, left: 50},
+    margin = {top: 40, right: 150, bottom: 100, left: 50},
     width = svg_width - margin.left - margin.right,
     height = svg_height - margin.top - margin.bottom;
 
@@ -30,7 +30,15 @@ d3.csv("csv/TS_DL_AVG.csv", function(data) {
 
   var x = d3.time.scale()
         .range([0, width])
-        .domain(d3.extent(province_data, function(d) { return d.date; }));
+        .domain([
+          d3.time.month.offset(d3.max(province_data, function(d) { return d.date; }), -3),
+          // d3.min(province_data, function(d) { return d.date; }),
+          d3.max(province_data, function(d) { return d.date; })
+        ]);
+
+  console.log(d3.min(province_data, function(d) { return d.date; }));
+  console.log(d3.time.month.offset(d3.max(province_data, function(d) { return d.date; }), -3));
+  console.log(d3.max(province_data, function(d) { return d.date; }));
 
   var y1 = d3.scale.linear()
       .range([height, 0])
@@ -46,33 +54,41 @@ d3.csv("csv/TS_DL_AVG.csv", function(data) {
         d3.max(province_data, function(d){return d.a_pm25;})
       ]);
 
-  console.log("min" + d3.min(province_data, function(d){return d.a_pm10;}));
-  console.log("max" + d3.max(province_data, function(d){return d.a_pm10;}));
-
   var line1 = d3.svg.line()
       .x(function(d) { return x(d.date); })
       .y(function(d) { return y1(d.a_pm10); });
-
 
   var line2 = d3.svg.line()
       .x(function(d) { return x(d.date); })
       .y(function(d) { return y2(d.a_pm25); });
 
+  chart.append("defs").append("clipPath")
+      .attr("id", "clip")
+        .append("rect")
+      .attr("width", width)
+      .attr("height", height);
+
   chart.append("g")
       .attr("class", "axis axis--x")
       .attr("transform", "translate(0," + height + ")")
       .call(d3.svg.axis().scale(x).orient('bottom'))
-    .append("text")
-      .attr("transform", "translate(" + width +", 0)")
-      .attr("dy", "0.71em")
-      .attr("fill", "#000")
-      .text("date");
+      .selectAll("text")
+        .attr("x", 9)
+        .attr("y", -9)
+        .attr("transform", "rotate(90)")
+        .style("text-anchor", "start")
+    // .append("text")
+    //   .attr("transform", "translate(" + width +", 0)")
+    //   .attr("dy", "0.71em")
+    //   .attr("fill", "#000")
+    //   .text("date");
 
   chart.append("g")
       .attr("class", "axis axis--y")
       .call(d3.svg.axis().scale(y1).orient('left'))
     .append("text")
-      .attr("transform", "rotate(-90)")
+      // .attr("transform", "rotate(-90)")
+      .attr("transform", "translate(-40, -30)")
       .attr("y", 6)
       .attr("dy", "0.71em")
       .attr("fill", "#000")
@@ -83,38 +99,48 @@ d3.csv("csv/TS_DL_AVG.csv", function(data) {
       .attr("class", "axis axis--y2")
       .call(d3.svg.axis().scale(y2).orient('right'))
     .append("text")
-      .attr("transform", "rotate(-90)")
+      // .attr("transform", "rotate(-90)")
+      .attr("transform", "translate(0, -30)")
       .attr("y", 6)
       .attr("dy", "0.71em")
       .attr("fill", "#000")
-      .text("PM25");
+      .text("PM2.5");
 
   chart.append("path")
     .attr("class", "line")
     .attr("d", line1(province_data))
+    .style("stroke", "#0f0")
+    .attr("clip-path", "url(#clip)");
 
   chart.append("path")
     .attr("class", "line")
     .attr("d", line2(province_data))
-    .style("stroke", "#f00");
+    .style("stroke", "#f00")
+    .attr("clip-path", "url(#clip)");
 
-  // var city = g.selectAll(".city")
-  //   .data(cities)
-  //   .enter().append("g")
-  //     .attr("class", "city");
-  //
-  // city.append("path")
-  //     .attr("class", "line")
-  //     .attr("d", function(d) { return line(d.values); })
-  //     .style("stroke", function(d) { return z(d.id); });
-  //
-  // city.append("text")
-  //     .datum(function(d) { return {id: d.id, value: d.values[d.values.length - 1]}; })
-  //     .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.temperature) + ")"; })
-  //     .attr("x", 3)
-  //     .attr("dy", "0.35em")
-  //     .style("font", "10px sans-serif")
-  //     .text(function(d) { return d.id; });
+  chart.append('rect')
+    .attr('x', width + 40)
+    .attr('y', 30)
+    .attr('width', 10)
+    .attr('height', 10)
+    .style('fill', '#0f0');
+  chart.append('text')
+      .text('PM10')
+      .attr('x', width + 40)
+      .attr('y', 30)
+      .attr('transform', 'translate(15, 10)');
+
+  chart.append('rect')
+    .attr('x', width + 40)
+    .attr('y', 50)
+    .attr('width', 10)
+    .attr('height', 10)
+    .style('fill', '#f00');
+  chart.append('text')
+      .text('PM2.5')
+      .attr('x', width + 40)
+      .attr('y', 50)
+      .attr('transform', 'translate(15, 10)');
 });
 
 function getCookie(c_name) {
