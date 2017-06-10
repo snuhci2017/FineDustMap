@@ -10,8 +10,8 @@ var attributeArray = [];
 var windArray = [];
 var curr_date = new Date(start_date);
 var timer;
-var wind_name = ["Buan", "Chilbaldo", "Chujado", "Deokjeokdo", "Donghae", "Geojaedo", "Geomundo", 
-				"Incheon", "Marado", "Oeyeondo", "Pohang", "Seogwipo", "Sinan", "Tongyoung", 
+var wind_name = ["Buan", "Chilbaldo", "Chujado", "Deokjeokdo", "Donghae", "Geojaedo", "Geomundo",
+				"Incheon", "Marado", "Oeyeondo", "Pohang", "Seogwipo", "Sinan", "Tongyoung",
 				"Uljin", "Ulleungdo", "Ulsan"];
 
 $("#pm_chbx").prop("checked", false);
@@ -35,12 +35,12 @@ $( function() {
 } );
 
 $("#play-button").click(function(d) {
-	if(playing === false) { 
+	if(playing === false) {
 		//getData();
 		d3.select(this).attr('src', 'stop-circle.png');
 		timer = setInterval(function(){
 			sequenceMap();
-			if(curr_date < end_date) {  
+			if(curr_date < end_date) {
 				curr_date.setDate(curr_date.getDate() + 1);
 				$( "#slider-range" )
 					.slider('values', [curr_date.getTime()/1000, end_date.getTime()/1000]);
@@ -56,12 +56,12 @@ $("#play-button").click(function(d) {
 					.slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
 				$( "#clock" ).text(start_date + " - " + end_date);
 			}
-			
+
         }, 1000);
-        playing = true; 
+        playing = true;
     } else {
-        clearInterval(timer);   
-        $("#play-button").attr('src', 'play-circle.png');   
+        clearInterval(timer);
+        $("#play-button").attr('src', 'play-circle.png');
         playing = false;
 		start_date = new Date("2016-01-01");
 		end_date = new Date("2016-12-31");
@@ -69,7 +69,7 @@ $("#play-button").click(function(d) {
 		$( "#slider-range" )
 			.slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
 		$( "#clock" ).text(start_date + " - " + end_date);
-		
+
 		// 화면을 최신 데이터에 맞도록 맞춤
     }
 });
@@ -80,7 +80,7 @@ var svg = d3.select("#map").append("svg")
 
 var map = svg.append("g")
 	.attr("id", "map");
-	
+
 // arrow header 등록
 map.append("svg:defs").append("svg:marker")
     .attr("id", "arrow-header")
@@ -92,7 +92,7 @@ map.append("svg:defs").append("svg:marker")
     .append("path")
     .attr("d", "M0,0 L0,6 L6,3 L0,0")
     .style("fill", "blue");
-	
+
 var projection = d3.geo.mercator()
     .scale(2500)
 	.center([128,36])
@@ -133,7 +133,7 @@ d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
 				.attr("r", 2)
 			.style("fill","#f00");
 	});
-  
+
 	d3.csv("csv/wind.csv", function(data) {
 
 		map.selectAll("line")
@@ -142,12 +142,12 @@ d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
 				.attr("class", "line")
 				.attr("x1", function(d) { return projection([d.lon, d.lat])[0]; })
 				.attr("y1", function(d) { return projection([d.lon, d.lat])[1]; })
-				.attr("x2", function(d) { 
+				.attr("x2", function(d) {
 					var x = +d.lon + (+d.speed * Math.cos(toRadians(+d.direction)) * 0.08);
 					var y = +d.lat + (+d.speed * Math.sin(toRadians(+d.direction)) * 0.08);
 					return projection([x, y])[0];
 				})
-				.attr("y2", function(d) { 
+				.attr("y2", function(d) {
 					var x = +d.lon + (+d.speed * Math.cos(toRadians(+d.direction)) * 0.08);
 					var y = +d.lat + (+d.speed * Math.sin(toRadians(+d.direction)) * 0.08);
 					return projection([x, y])[1];
@@ -165,7 +165,7 @@ svg.append("text")
 	.attr("id", "zoom-in");
 
 //getData();
-	
+
 function getcolor(val) {
 	if(val >= 151) return "#d7191c";
 	else if(val < 151 && val >= 81) return "#fdae61";
@@ -264,7 +264,7 @@ function getData() {
 			attributeArray.push(d);
 		});
 	});
-	
+
 	for(var i = 0; i < wind_name.length; i++) {
 		var wind_path = "csv/" + wind_name[i] + "_wind.csv";
 		d3.csv(wind_path, function(data) {
@@ -276,7 +276,7 @@ function getData() {
 }
 
 Date.prototype.yyyymmdd = function() {
-  var mm = this.getMonth() + 1; 
+  var mm = this.getMonth() + 1;
   var dd = this.getDate();
 
   return [this.getFullYear(),
@@ -286,7 +286,7 @@ Date.prototype.yyyymmdd = function() {
 };
 
 Date.prototype.dashform = function() {
-  var mm = this.getMonth() + 1; 
+  var mm = this.getMonth() + 1;
   var dd = this.getDate();
 
   return [this.getFullYear(),
@@ -296,11 +296,11 @@ Date.prototype.dashform = function() {
 }
 
 function sequenceMap() {
-	var result = $.grep(attributeArray, function(e){ 
+	var result = $.grep(attributeArray, function(e){
 		var date = curr_date.yyyymmdd();
-		return date === e["DATE1"]; 
+		return date === e["DATE1"];
 	});
-	
+
 	//result.forEach(function(d1) {
 		map.selectAll("path")
 			.style("fill", function(d2) {
@@ -315,13 +315,13 @@ function sequenceMap() {
 					}
 				}
 			});
-	var wind_result = $.grep(windArray, function(e){ 
+	var wind_result = $.grep(windArray, function(e){
 		var date = curr_date.dashform();
-		return date === e["date"]; 
+		return date === e["date"];
 	});
-	
+
 		map.selectAll("line")
-			.attr("x2", function(d) { 
+			.attr("x2", function(d) {
 				var val = $.grep(wind_result, function(c) {
 					return c.buoy === d.buoy;
 				});
@@ -335,7 +335,7 @@ function sequenceMap() {
 				}
 				return projection([x, y])[0];
 			})
-			.attr("y2", function(d) { 
+			.attr("y2", function(d) {
 				var val = $.grep(wind_result, function(c) {
 					return c.buoy === d.buoy;
 				});
@@ -349,14 +349,14 @@ function sequenceMap() {
 				}
 				return projection([x, y])[1];
 			})
-			
+
 		map.select("#arrow-header")
 			.selectAll("path")
 				.style("fill", "blue");
 			//.attr("stroke-width", 0.8)
 			//.attr("stroke", "blue")
 			//.attr("marker-end", "url(#arrow-header)");
-	
+
 	//});
 }
 

@@ -118,25 +118,28 @@ d3.csv("csv/TS_DL_AVG.csv", function(data) {
     .style("stroke", "#f00")
     .attr("clip-path", "url(#clip)");
 
-  chart.append('rect')
+  var legend = chart.append('g')
+    .attr('class', 'legend');
+
+  legend.append('rect')
     .attr('x', width + 40)
     .attr('y', 30)
     .attr('width', 10)
     .attr('height', 10)
     .style('fill', '#0f0');
-  chart.append('text')
+  legend.append('text')
       .text('PM10')
       .attr('x', width + 40)
       .attr('y', 30)
       .attr('transform', 'translate(15, 10)');
 
-  chart.append('rect')
+  legend.append('rect')
     .attr('x', width + 40)
     .attr('y', 50)
     .attr('width', 10)
     .attr('height', 10)
     .style('fill', '#f00');
-  chart.append('text')
+  legend.append('text')
       .text('PM2.5')
       .attr('x', width + 40)
       .attr('y', 50)
