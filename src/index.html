@@ -7,15 +7,21 @@
   </head>
 
   <body>
-    <label class="switch">
-      <input type="checkbox" onclick="pm_switch(this)" id="pm_chbx" unchecked>
-      <div class="slider"></div>
-    </label>
+    <div class="control">
+		<div class="notify">pm 10 </div>
+		<label class="switch">
+		  <input type="checkbox" onclick="pm_switch(this)" id="pm_chbx" unchecked>
+		  <div class="slider"></div>
+		</label>
+		<div class="notify"> pm 2.5</div>
+	</div>
 
     <div id="map" class="centre"></div>
 	<div id="player">
-	  <input id="play-button" type="image" src="play-circle.png">
-	  <span id="clock"></span>
+	  <div class = "control">
+	    <input id="play-button" type="image" src="play-circle.png">
+	    <span id="clock"></span>
+	  </div>
 	  <div id="slider-range"></div>
 	</div>
     <script src='https://code.jquery.com/jquery-3.1.0.min.js'></script>

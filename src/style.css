@@ -46,6 +46,27 @@ div.centre
   margin-right: auto;
 }
 
+div.control
+{
+  text-align: left;
+  width: 60%;
+  height: 40px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#clock {
+  font-size: 20px;
+  vertical-align: top;
+}
+
+.notify {
+  font-size: 20px;
+  display: inline-block;
+  vertical-align: top;
+}
+
 /* The switch - the box around the slider */
 .switch {
   position: relative;
