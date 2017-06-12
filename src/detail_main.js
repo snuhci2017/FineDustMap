@@ -44,6 +44,7 @@ $("#play-button").click(function(d) {
 		d3.select(this).attr('src', 'stop-circle.png');
 		timer = setInterval(function(){
 			sequenceMap();
+      sequenceChart();
 			if(curr_date < end_date) {
 				curr_date.setDate(curr_date.getDate() + 1);
 				$( "#slider-range" )
@@ -240,10 +241,10 @@ function sequenceMap() {
 				var val = $.grep(result, function(c) {
 					return c.LOC_1 === d2.properties.SIG_KOR_NM;
 				});
-				console.log(val);
+				// console.log(val);
 				if(val.length > 0) {
 					if(pm === "pm10") {
-						console.log(val[0].a_pm10);
+						// console.log(val[0].a_pm10);
 						return getcolor(val[0].a_pm10);
 					} else {
 						return getcolor(val[0].a_pm25);

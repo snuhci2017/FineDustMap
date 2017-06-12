@@ -3,8 +3,6 @@ var svg_width = 940, svg_height = 500,
     width = svg_width - margin.left - margin.right,
     height = svg_height - margin.top - margin.bottom;
 
-var province_name = getCookie("province");
-
 var svg = d3.select("#chart").append("svg")
     //.attr("width", svg_width)
     .attr("width", "100%")
@@ -17,8 +15,24 @@ var chart = svg.append("g")
 var parseTime = d3.time.format("%Y%m%d").parse;
 var province_data = [];
 
-d3.csv("csv/TS_DL_AVG.csv", function(data) {
+var x = d3.time.scale()
+      .range([0, width]);
 
+var y1 = d3.scale.linear()
+    .range([height, 0]);
+
+var y2 = d3.scale.linear()
+    .range([height, 0]);
+
+var line1 = d3.svg.line()
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y1(d.a_pm10); });
+
+var line2 = d3.svg.line()
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y2(d.a_pm25); });
+
+d3.csv("csv/TS_DL_AVG.csv", function(data) {
   data.forEach(function (d) {
     if(d.LOC == province_name) {
       // console.log(d.DATE1);
@@ -29,60 +43,15 @@ d3.csv("csv/TS_DL_AVG.csv", function(data) {
     }
   });
 
-  var x = d3.time.scale()
-        .range([0, width])
-        .domain([
-          d3.time.month.offset(d3.max(province_data, function(d) { return d.date; }), -3),
-          // d3.min(province_data, function(d) { return d.date; }),
-          d3.max(province_data, function(d) { return d.date; })
-        ]);
+  y1.domain([
+    d3.min(province_data, function(d){return d.a_pm10;}),
+    d3.max(province_data, function(d){return d.a_pm10;})
+  ]);
 
-  console.log(d3.min(province_data, function(d) { return d.date; }));
-  console.log(d3.time.month.offset(d3.max(province_data, function(d) { return d.date; }), -3));
-  console.log(d3.max(province_data, function(d) { return d.date; }));
-
-  var y1 = d3.scale.linear()
-      .range([height, 0])
-      .domain([
-        d3.min(province_data, function(d){return d.a_pm10;}),
-        d3.max(province_data, function(d){return d.a_pm10;})
-      ]);
-
-  var y2 = d3.scale.linear()
-      .range([height, 0])
-      .domain([
-        d3.min(province_data, function(d){return d.a_pm25;}),
-        d3.max(province_data, function(d){return d.a_pm25;})
-      ]);
-
-  var line1 = d3.svg.line()
-      .x(function(d) { return x(d.date); })
-      .y(function(d) { return y1(d.a_pm10); });
-
-  var line2 = d3.svg.line()
-      .x(function(d) { return x(d.date); })
-      .y(function(d) { return y2(d.a_pm25); });
-
-  chart.append("defs").append("clipPath")
-      .attr("id", "clip")
-        .append("rect")
-      .attr("width", width)
-      .attr("height", height);
-
-  chart.append("g")
-      .attr("class", "axis axis--x")
-      .attr("transform", "translate(0," + height + ")")
-      .call(d3.svg.axis().scale(x).orient('bottom'))
-      .selectAll("text")
-        .attr("x", 9)
-        .attr("y", -9)
-        .attr("transform", "rotate(90)")
-        .style("text-anchor", "start")
-    // .append("text")
-    //   .attr("transform", "translate(" + width +", 0)")
-    //   .attr("dy", "0.71em")
-    //   .attr("fill", "#000")
-    //   .text("date");
+  y2.domain([
+    d3.min(province_data, function(d){return d.a_pm25;}),
+    d3.max(province_data, function(d){return d.a_pm25;})
+  ]);
 
   chart.append("g")
       .attr("class", "axis axis--y")
@@ -106,18 +75,6 @@ d3.csv("csv/TS_DL_AVG.csv", function(data) {
       .attr("dy", "0.71em")
       .attr("fill", "#000")
       .text("PM2.5");
-
-  chart.append("path")
-    .attr("class", "line")
-    .attr("d", line1(province_data))
-    .style("stroke", "#0f0")
-    .attr("clip-path", "url(#clip)");
-
-  chart.append("path")
-    .attr("class", "line")
-    .attr("d", line2(province_data))
-    .style("stroke", "#f00")
-    .attr("clip-path", "url(#clip)");
 
   var legend = chart.append('g')
     .attr('class', 'legend');
@@ -145,17 +102,65 @@ d3.csv("csv/TS_DL_AVG.csv", function(data) {
       .attr('x', width + 40)
       .attr('y', 50)
       .attr('transform', 'translate(15, 10)');
+
+  chart.append("defs").append("clipPath")
+      .attr("id", "clip")
+        .append("rect")
+      .attr("width", width)
+      .attr("height", height);
+
+  sequenceChart();
+
+
+  chart.append("g")
+      .attr("class", "axis axis--x")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.svg.axis().scale(x).orient('bottom'))
+      .selectAll("text")
+        .attr("x", 9)
+        .attr("y", -9)
+        .attr("transform", "rotate(90)")
+        .style("text-anchor", "start");
+
+  chart.append("path")
+    .attr("class", "line1")
+    .attr("d", line1(province_data))
+    .style("stroke", "#0f0")
+    .attr("clip-path", "url(#clip)");
+
+  chart.append("path")
+    .attr("class", "line2")
+    .attr("d", line2(province_data))
+    .style("stroke", "#f00")
+    .attr("clip-path", "url(#clip)");
 });
 
-function getCookie(c_name) {
-  var i,x,y,ARRcookies=document.cookie.split(";");
-	for (i=0;i<ARRcookies.length;i++)
-	{
-		x=ARRcookies[i].substr(0,ARRcookies[i].indexOf("="));
-		y=ARRcookies[i].substr(ARRcookies[i].indexOf("=")+1);
-		x=x.replace(/^\s+|\s+$/g,"");
-		if (x==c_name) {
-			return unescape(y);
-		}
-	}
+function sequenceChart() {
+  x.domain([
+    // d3.time.month.offset(d3.max(province_data, function(d) { return d.date; }), -3),
+    // d3.min(province_data, function(d) { return d.date; }),
+    // d3.max(province_data, function(d) { return d.date; })
+    d3.time.month.offset(curr_date.getTime(), -3),
+    curr_date.getTime()
+  ]);
+
+  chart.select(".axis--x")
+      .call(d3.svg.axis().scale(x).orient('bottom'))
+      .attr("transform", "translate(0," + height + ")")
+      .selectAll("text")
+        .attr("x", 9)
+        .attr("y", -9)
+        .attr("transform", "rotate(90)")
+        .style("text-anchor", "start");
+    // .append("text")
+    //   .attr("transform", "translate(" + width +", 0)")
+    //   .attr("dy", "0.71em")
+    //   .attr("fill", "#000")
+    //   .text("date");
+
+  chart.select(".line1")
+    .attr("d", line1(province_data));
+
+  chart.select(".line2")
+    .attr("d", line2(province_data));
 }
