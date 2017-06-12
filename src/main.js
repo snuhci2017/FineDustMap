@@ -1,4 +1,4 @@
-var width = 960,
+var width = 600,
     height = 500,
     centered;
 
@@ -76,7 +76,8 @@ $("#play-button").click(function(d) {
 
 var svg = d3.select("#map").append("svg")
     .attr("width", width)
-	.attr("height", height);
+	.attr("height", height)
+	.attr("align","center");
 
 var map = svg.append("g")
 	.attr("id", "map");
