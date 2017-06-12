@@ -2,11 +2,81 @@ var width = 960,
     height = 500,
 	centered;
 
+var playing = false;
 var pm = "pm10";
+var start_date = new Date("2016-01-01");
+var end_date = new Date("2016-12-31");
+var attributeArray = [];
+var curr_date = new Date(start_date);
+var timer;
+
 pm = getCookie("pm");
 
+var tooltip = $('<div id="tooltip" />').css({
+    position: 'absolute',
+    top: -25,
+    left: -10
+}).hide();
+$( function() {
+		$( "#slider-range" ).slider({
+			range: true,
+			min: new Date("2016-01-01").getTime()/1000,
+			max: new Date("2016-12-31").getTime()/1000,
+			values: [new Date("2016-01-01").getTime()/1000, new Date("2016-12-31").getTime()/1000],
+			slide: function( event, ui ) {
+				start_date = new Date(ui.values[ 0 ] *1000);
+				end_date = new Date(ui.values[ 1 ] *1000);
+				curr_date = new Date(start_date);
+				$( "#clock" ).text(start_date.toDateString() + " - " + end_date.toDateString());
+			}
+		}).find(".ui-slider-handle").append(tooltip).hover(function() {
+			tooltip.show();
+		}, function() {
+			tooltip.hide();
+		});
+});
+
+$("#play-button").click(function(d) {
+	if(playing === false) {
+		d3.select(this).attr('src', 'stop-circle.png');
+		timer = setInterval(function(){
+			sequenceMap();
+			if(curr_date < end_date) {
+				curr_date.setDate(curr_date.getDate() + 1);
+				$( "#slider-range" )
+					.slider('values', [curr_date.getTime()/1000, end_date.getTime()/1000]);
+				$( "#clock" ).text(curr_date + " - " + end_date);
+			} else {
+				clearInterval(timer);
+				$("#play-button").attr('src', 'play-circle.png');
+				playing = false;
+				start_date = new Date("2016-01-01");
+				end_date = new Date("2016-12-31");
+				curr_date = new Date(start_date);
+				$( "#slider-range" )
+					.slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
+				$( "#clock" ).text(start_date + " - " + end_date);
+			}
+        }, 1000);
+        playing = true;
+    } else {
+        clearInterval(timer);
+        $("#play-button").attr('src', 'play-circle.png');
+        playing = false;
+		start_date = new Date("2016-01-01");
+		end_date = new Date("2016-12-31");
+		curr_date = new Date(start_date);
+		$( "#slider-range" )
+			.slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
+		$( "#clock" ).text(start_date + " - " + end_date);
+
+		// 화면을 최신 데이터에 맞도록 맞춤
+    }
+});
+
 var svg = d3.select("#map").append("svg")
-    .attr("width", width)
+    .attr("width", "100%")
+    //.attr("width", width)
 	.attr("height", height);
 
 var map = svg.append("g")
@@ -21,7 +91,7 @@ var path = d3.geo.path().projection(projection);
 var province_name = getCookie("province");
 var map_path = "json/" + province_name + "-topo.json";
 // var map_path = "json/Seoul-topo2.json";
-console.log(map_path);
+//console.log(map_path);
 
 d3.csv("csv/projection_data.csv", function(data) {
   var projection_data = {};
@@ -51,8 +121,8 @@ d3.csv("csv/projection_data.csv", function(data) {
   		.attr("class", "municipality-label")
   		.text(function(d){ return d.properties.SIG_KOR_NM;})
   		.style("fill", function(d) {
-  			console.log(d.properties.SIG_KOR_NM + ":" +rateById[d.properties.SIG_KOR_NM]);
-              return getcolor(rateById[d.properties.SIG_KOR_NM]);
+  			//console.log(d.properties.SIG_KOR_NM + ":" +rateById[d.properties.SIG_KOR_NM]);
+            return getcolor(rateById[d.properties.SIG_KOR_NM]);
           })
   		.on("mouseenter", mymouseenter)
   		.on("mouseleave", mymouseleave);
@@ -135,3 +205,49 @@ function mymouseenter(d) {
 function mymouseleave(d) {
 	$("#mouse-enter").remove();
 }
+
+function getData() {
+	d3.csv("csv/TS_DLL_AVG.csv", function(data) {
+		data.forEach(function(d) {
+			if(province_name === d.LOC) {
+				//console.log(d);
+				attributeArray.push(d);
+			}
+		});
+	});
+}
+
+Date.prototype.yyyymmdd = function() {
+  var mm = this.getMonth() + 1;
+  var dd = this.getDate();
+
+  return [this.getFullYear(),
+          (mm>9 ? '' : '0') + mm,
+          (dd>9 ? '' : '0') + dd
+         ].join('');
+};
+
+function sequenceMap() {
+	var result = $.grep(attributeArray, function(e){
+		var date = curr_date.yyyymmdd();
+		return date === e["DATE1"];
+	});
+	//console.log(result);
+		map.selectAll("path")
+			.style("fill", function(d2) {
+				var val = $.grep(result, function(c) {
+					return c.LOC_1 === d2.properties.SIG_KOR_NM;
+				});
+				console.log(val);
+				if(val.length > 0) {
+					if(pm === "pm10") {
+						console.log(val[0].a_pm10);
+						return getcolor(val[0].a_pm10);
+					} else {
+						return getcolor(val[0].a_pm25);
+					}
+				}
+			});
+}
+
+$(document).ready(getData);

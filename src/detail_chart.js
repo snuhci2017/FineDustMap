@@ -1,4 +1,4 @@
-var svg_width = 960, svg_height = 500,
+var svg_width = 940, svg_height = 500,
     margin = {top: 40, right: 150, bottom: 100, left: 50},
     width = svg_width - margin.left - margin.right,
     height = svg_height - margin.top - margin.bottom;
@@ -6,7 +6,8 @@ var svg_width = 960, svg_height = 500,
 var province_name = getCookie("province");
 
 var svg = d3.select("#chart").append("svg")
-    .attr("width", svg_width)
+    //.attr("width", svg_width)
+    .attr("width", "100%")
     .attr("height", svg_height);
 
 var chart = svg.append("g")
