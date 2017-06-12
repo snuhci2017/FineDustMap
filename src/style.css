@@ -10,7 +10,7 @@ svg .municipality {
 
 svg .municipality-label {
   fill: #fff;	/*지도 구역 색깔*/
-  font-size: 12px;
+  font-size: 20px;
   font-weight: 300;
   text-anchor: middle;
   stroke: #6666cc;
@@ -18,14 +18,14 @@ svg .municipality-label {
 
 svg .municipality-label:hover {
   fill: #fff;
-  font-size: 12px;
+  font-size: 20px;
   font-weight: 300;
   text-anchor: middle;
 }
 
 svg #map text {
   color: #333;
-  font-size: 10px;
+  font-size: 20px;
   text-anchor: middle;
 }
 /*

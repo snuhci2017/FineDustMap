@@ -12,6 +12,9 @@ var timer;
 
 pm = getCookie("pm");
 
+var province_name = getCookie("province");
+$("#prov_name").text(province_name);
+
 var tooltip = $('<div id="tooltip" />').css({
     position: 'absolute',
     top: -25,
@@ -88,7 +91,6 @@ var projection = d3.geo.mercator()
 
 var path = d3.geo.path().projection(projection);
 
-var province_name = getCookie("province");
 var map_path = "json/" + province_name + "-topo.json";
 // var map_path = "json/Seoul-topo2.json";
 //console.log(map_path);

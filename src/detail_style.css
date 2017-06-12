@@ -9,7 +9,7 @@ svg .municipality {
 
 svg .municipality-label {
   fill: #fff;	/*지도 구역 색깔*/
-  font-size: 12px;
+  font-size: 20px;
   font-weight: 300;
   text-anchor: middle;
   stroke: #6666cc;
@@ -22,19 +22,28 @@ svg .municipality-label:hover {
   text-anchor: middle;
 }
 
+#prov_name {
+  font-size: 60px;
+  display: block;
+  width: 50%;
+  height: 70px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 div .map-container {
   width: 50%;
   height: 500px;
-  display: block;
-  //display: inline;
+  /*display: block;*/
+  display: inline;
   float: left;
 }
 
 div .dust-chart {
   width: 50%;
   height: 500px;
-  display: block;
-  //display: inline;
+  /*display: block;*/
+  display: inline;
   float: right;
 }
 
