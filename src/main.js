@@ -1,5 +1,5 @@
-var width = 600,
-    height = 500,
+var width = 640,
+    height = 700,
     centered;
 
 var playing = false;
@@ -28,10 +28,6 @@ $( function() {
 				$( "#clock" ).text(start_date.toDateString() + " - " + end_date.toDateString());
 			}
 		});
-		/*
-		$( "#clock" ).val( $( "#slider-range" ).slider( "values", 0 ) +
-			" - " + $( "#slider-range" ).slider( "values", 1 ) );
-		*/
 } );
 
 $("#play-button").click(function(d) {
@@ -68,7 +64,7 @@ $("#play-button").click(function(d) {
 		curr_date = new Date(start_date);
 		$( "#slider-range" )
 			.slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
-		$( "#clock" ).text(start_date + " - " + end_date);
+		$( "#clock" ).text("");
 
 		// 화면을 최신 데이터에 맞도록 맞춤
     }
@@ -95,7 +91,7 @@ map.append("svg:defs").append("svg:marker")
     .style("fill", "blue");
 
 var projection = d3.geo.mercator()
-    .scale(2500)
+    .scale(5500)
 	.center([128,36])
 	.translate([width/2, height/2]);
 
