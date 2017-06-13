@@ -11,6 +11,8 @@ var curr_date = new Date(start_date);
 var timer;
 var sigungu = "";
 
+var pm10_data = {}, pm25_data = {};
+
 pm = getCookie("pm");
 
 var province_name = getCookie("province");
@@ -68,15 +70,16 @@ $("#play-button").click(function(d) {
         clearInterval(timer);
         $("#play-button").attr('src', 'play-circle.png');
         playing = false;
-		start_date = new Date("2016-01-01");
-		end_date = new Date("2016-12-31");
-		curr_date = new Date(start_date);
-		$( "#slider-range" )
-			.slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
-		$( "#clock" ).text("");
+    		start_date = new Date("2016-01-01");
+    		end_date = new Date("2016-12-31");
+    		curr_date = new Date(start_date);
+    		$( "#slider-range" )
+    			.slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
+    		$( "#clock" ).text("");
 
 		// 화면을 최신 데이터에 맞도록 맞춤
 		firstMap();
+		redraw_chart();
     }
 });
 
@@ -228,13 +231,50 @@ function mymouseenter(d) {
 	map.append("text")
 		.attr("x", x)
 		.attr("y", y)
+    .attr("dy", "0em")
 		.attr("font-size", "15px")
-		.attr("id", "mouse-enter")
+		.attr("class", "mouse-enter")
 		.text(text);
+
+  if(playing === true)
+    return;
+
+	var result = $.grep(attributeArray, function(e){
+		var date = curr_date.yyyymmdd();
+		return date === e["DATE1"];
+	});
+
+  var val = $.grep(result, function(c) {
+    return c.LOC === d.properties.name_eng;
+  });
+
+  var pm10 = pm10_data[text];
+  if(pm10 === -900)
+    pm10 = "No data";
+
+  var pm25 = pm25_data[text];
+  if(pm25 === -900)
+    pm25 = "No data";
+
+	map.append("text")
+		.attr("x", x)
+		.attr("y", y)
+    .attr("dy", "1em")
+		.attr("font-size", "15px")
+		.attr("class", "mouse-enter")
+		.text('PM10: ' + pm10);
+
+	map.append("text")
+		.attr("x", x)
+		.attr("y", y)
+    .attr("dy", "2em")
+		.attr("font-size", "15px")
+		.attr("class", "mouse-enter")
+		.text('PM2.5: ' + pm25);
 }
 
 function mymouseleave(d) {
-	$("#mouse-enter").remove();
+	$(".mouse-enter").remove();
 }
 
 function elecmouseenter(d) {
@@ -268,7 +308,7 @@ function myclick(d) {
 		centered = null;
 		sigungu = "";
 	}
-  
+
   clearInterval(timer);
   $("#play-button").attr('src', 'play-circle.png');
   playing = false;
@@ -295,6 +335,18 @@ function getData() {
 				// console.log(d);
 				attributeArray.push(d);
 			}
+		});
+	});
+
+  d3.csv("csv/" + province_name + "_pm10.csv", function(data) {
+    data.forEach(function(d) {
+      pm10_data[d.gungu] = +d.value;
+    });
+  });
+
+	d3.csv("csv/" + province_name + "_pm25.csv", function(data) {
+		data.forEach(function(d) {
+      pm25_data[d.gungu] = +d.value;
 		});
 	});
 }
@@ -339,7 +391,7 @@ function firstMap() {
   			// console.log(d);
   			rateById[d.gungu] = +d.value;
   		});
-		
+
 		map.selectAll("path")
 			.style("fill", function(d) {
 				return getcolor(rateById[d.properties.SIG_KOR_NM]);

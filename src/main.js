@@ -14,6 +14,8 @@ var wind_name = ["Buan", "Chilbaldo", "Chujado", "Deokjeokdo", "Donghae", "Geoja
 				"Incheon", "Marado", "Oeyeondo", "Pohang", "Seogwipo", "Sinan", "Tongyoung",
 				"Uljin", "Ulleungdo", "Ulsan"];
 
+var pm10_data = {}, pm25_data = {};
+
 $("#pm_chbx").prop("checked", false);
 $( function() {
 		$( "#slider-range" ).slider({
@@ -32,6 +34,8 @@ $( function() {
 
 $("#play-button").click(function(d) {
 	if(playing === false) {
+    // map.selectAll("path").off("mouseenter", mymouseenter);
+
 		d3.select(this).attr('src', 'stop-circle.png');
 		timer = setInterval(function(){
 			sequenceMap();
@@ -55,17 +59,28 @@ $("#play-button").click(function(d) {
         }, 1000);
         playing = true;
     } else {
+      clearInterval(timer);
+      $("#play-button").attr('src', 'play-circle.png');
+      playing = false;
+    	start_date = new Date("2016-01-01");
+    	end_date = new Date("2016-12-31");
+    	curr_date = new Date(start_date);
+    	$( "#slider-range" )
+    		.slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
+    	$( "#clock" ).text("");
+
+    	// 화면을 최신 데이터에 맞도록 맞춤
         clearInterval(timer);
         $("#play-button").attr('src', 'play-circle.png');
         playing = false;
-		start_date = new Date("2016-01-01");
-		end_date = new Date("2016-12-31");
-		curr_date = new Date(start_date);
-		$( "#slider-range" )
-			.slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
-		$( "#clock" ).text("");
+    		start_date = new Date("2016-01-01");
+    		end_date = new Date("2016-12-31");
+    		curr_date = new Date(start_date);
+    		$( "#slider-range" )
+    			.slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
+    		$( "#clock" ).text("");
 
-		firstMap();
+    		firstMap();
     }
 });
 
@@ -105,19 +120,19 @@ d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
 			rateById[d.province] = +d.value;
 		});
 
-		map.selectAll("path")
-	    .data(features)
-	  .enter().append("path")
-	  	.attr("dy", ".35em")
-		.attr("d", path)
-		.attr("class", "municipality-label")
-		.text(function(d){ return d.properties.name;})
-		.style("fill", function(d) {
-            return getcolor(rateById[d.properties.name]);
+  	map.selectAll("path")
+      .data(features)
+    .enter().append("path")
+    	.attr("dy", ".35em")
+  	.attr("d", path)
+  	.attr("class", "municipality-label")
+  	.text(function(d){ return d.properties.name;})
+  	.style("fill", function(d) {
+        return getcolor(rateById[d.properties.name]);
         })
-		.on("click", myclick)
-		.on("mouseenter", mymouseenter)
-		.on("mouseleave", mymouseleave);
+  	.on("click", myclick)
+  	.on("mouseenter", mymouseenter)
+  	.on("mouseleave", mymouseleave);
 	})
 
 	d3.csv("csv/electric.csv", function(data) {
@@ -133,7 +148,6 @@ d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
 	});
 
 	d3.csv("csv/wind.csv", function(data) {
-
 		map.selectAll("line")
 			.data(data)
 			.enter().append("line")
@@ -178,7 +192,7 @@ var legend = svg.append("g")
       .attr("dy", ".35em")
       .style("text-anchor", "end")
       .text("화력 발전소");
-	  
+
   legend.append("line")
     .attr("x1", width - 10)
 	.attr("y1", 68)
@@ -203,29 +217,6 @@ function getcolor(val) {
 }
 
 function myclick(d) {
-	var x, y, k;
-	var text;
-
-	if (d && centered !== d) {
-		var centroid = path.centroid(d);
-		x = centroid[0];
-		y = centroid[1];
-		k = 4;
-		centered = d;
-		text = "zoom in " + d.properties.name;
-	} else {
-		x = width / 2;
-		y = height / 2;
-		k = 1;
-		centered = null;
-		text = "";
-	}
-
-	map.transition()
-		.duration(750)
-		.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
-		.style("stroke-width", 1.5 / k + "px");
-	$("#zoom-in").text(text);
 	detailpage(d.properties.name_eng, pm);
 }
 
@@ -240,13 +231,43 @@ function mymouseenter(d) {
 	map.append("text")
 		.attr("x", x)
 		.attr("y", y)
+    .attr("dy", "0em")
 		.attr("font-size", "15px")
-		.attr("id", "mouse-enter")
+		.attr("class", "mouse-enter")
 		.text(text);
+
+  if(playing === true)
+    return;
+
+	var result = $.grep(attributeArray, function(e){
+		var date = curr_date.yyyymmdd();
+		return date === e["DATE1"];
+	});
+
+  var val = $.grep(result, function(c) {
+    return c.LOC === d.properties.name_eng;
+  });
+
+	map.append("text")
+		.attr("x", x)
+		.attr("y", y)
+    .attr("dy", "1em")
+		.attr("font-size", "15px")
+		.attr("class", "mouse-enter")
+		// .text('PM10: ' + val[0].a_pm10);
+		.text('PM10: ' + pm10_data[text]);
+
+	map.append("text")
+		.attr("x", x)
+		.attr("y", y)
+    .attr("dy", "2em")
+		.attr("font-size", "15px")
+		.attr("class", "mouse-enter")
+		.text('PM2.5: ' + pm25_data[text]);
 }
 
 function mymouseleave(d) {
-	$("#mouse-enter").remove();
+	$(".mouse-enter").remove();
 }
 
 function elecmouseenter(d) {
@@ -278,21 +299,17 @@ function setCookie(c_name,value,exdays) {
 
 function pm_switch(chbx) {
   if (chbx.checked == true)
-    pm = "pm25";
+    pm = 'pm25';
   else
-    pm = "pm10";
+    pm = 'pm10';
 
-  d3.csv("csv/" + pm + ".csv", function(data) {
-    var rateById = {};
-  	data.forEach(function(d) {
-  		rateById[d.province] = +d.value;
-  	});
-
-  	map.selectAll("path")
-  	  .style("fill", function(d) {
-        return getcolor(rateById[d.properties.name]);
-      });
-  });
+	map.selectAll("path")
+	  .style("fill", function(d) {
+      if(pm === 'pm10')
+        return getcolor(pm10_data[d.properties.name]);
+      else
+        return getcolor(pm25_data[d.properties.name]);
+    });
 }
 
 function toRadians (angle) {
@@ -314,6 +331,18 @@ function getData() {
 			});
 		});
 	}
+
+  d3.csv("csv/pm10.csv", function(data) {
+    data.forEach(function(d) {
+      pm10_data[d.province] = +d.value;
+    })
+  });
+
+  d3.csv("csv/pm25.csv", function(data) {
+    data.forEach(function(d) {
+      pm25_data[d.province] = +d.value;
+    })
+  });
 }
 
 Date.prototype.yyyymmdd = function() {
@@ -412,7 +441,7 @@ function firstMap() {
 				return getcolor(rateById[d.properties.name]);
 			});
 	});
-	
+
 	d3.csv("csv/wind.csv", function(data) {
 		map.selectAll("line")
 			.attr("x1", function(d) { return projection([d.lon, d.lat])[0]; })
