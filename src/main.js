@@ -14,6 +14,8 @@ var wind_name = ["Buan", "Chilbaldo", "Chujado", "Deokjeokdo", "Donghae", "Geoja
 				"Incheon", "Marado", "Oeyeondo", "Pohang", "Seogwipo", "Sinan", "Tongyoung",
 				"Uljin", "Ulleungdo", "Ulsan"];
 
+var pm10_data = {}, pm25_data = {};
+
 $("#pm_chbx").prop("checked", false);
 $( function() {
 		$( "#slider-range" ).slider({
@@ -106,19 +108,19 @@ d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
 			rateById[d.province] = +d.value;
 		});
 
-		map.selectAll("path")
-	    .data(features)
-	  .enter().append("path")
-	  	.attr("dy", ".35em")
-		.attr("d", path)
-		.attr("class", "municipality-label")
-		.text(function(d){ return d.properties.name;})
-		.style("fill", function(d) {
-            return getcolor(rateById[d.properties.name]);
+  	map.selectAll("path")
+      .data(features)
+    .enter().append("path")
+    	.attr("dy", ".35em")
+  	.attr("d", path)
+  	.attr("class", "municipality-label")
+  	.text(function(d){ return d.properties.name;})
+  	.style("fill", function(d) {
+        return getcolor(rateById[d.properties.name]);
         })
-		.on("click", myclick)
-		.on("mouseenter", mymouseenter)
-		.on("mouseleave", mymouseleave);
+  	.on("click", myclick)
+  	.on("mouseenter", mymouseenter)
+  	.on("mouseleave", mymouseleave);
 	})
 
 	d3.csv("csv/electric.csv", function(data) {
@@ -174,29 +176,25 @@ function getcolor(val) {
 }
 
 function myclick(d) {
-	var x, y, k;
-	var text;
-
-	if (d && centered !== d) {
-		var centroid = path.centroid(d);
-		x = centroid[0];
-		y = centroid[1];
-		k = 4;
-		centered = d;
-		text = "zoom in " + d.properties.name;
-	} else {
-		x = width / 2;
-		y = height / 2;
-		k = 1;
-		centered = null;
-		text = "";
-	}
-
-	map.transition()
-		.duration(750)
-		.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
-		.style("stroke-width", 1.5 / k + "px");
-	$("#zoom-in").text(text);
+	// var x, y, k;
+  //
+	// if (d && centered !== d) {
+	// 	var centroid = path.centroid(d);
+	// 	x = centroid[0];
+	// 	y = centroid[1];
+	// 	k = 4;
+	// 	centered = d;
+	// } else {
+	// 	x = width / 2;
+	// 	y = height / 2;
+	// 	k = 1;
+	// 	centered = null;
+	// }
+  //
+	// map.transition()
+	// 	.duration(750)
+	// 	.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
+	// 	.style("stroke-width", 1.5 / k + "px");
 	detailpage(d.properties.name_eng, pm);
 }
 
@@ -211,13 +209,30 @@ function mymouseenter(d) {
 	map.append("text")
 		.attr("x", x)
 		.attr("y", y)
+    .attr("dy", "0em")
 		.attr("font-size", "15px")
-		.attr("id", "mouse-enter")
+		.attr("class", "mouse-enter")
 		.text(text);
+
+	map.append("text")
+		.attr("x", x)
+		.attr("y", y)
+    .attr("dy", "1em")
+		.attr("font-size", "15px")
+		.attr("class", "mouse-enter")
+		.text('PM10: ' + pm10_data[text]);
+
+	map.append("text")
+		.attr("x", x)
+		.attr("y", y)
+    .attr("dy", "2em")
+		.attr("font-size", "15px")
+		.attr("class", "mouse-enter")
+		.text('PM2.5: ' + pm25_data[text]);
 }
 
 function mymouseleave(d) {
-	$("#mouse-enter").remove();
+	$(".mouse-enter").remove();
 }
 
 function elecmouseenter(d) {
@@ -249,21 +264,17 @@ function setCookie(c_name,value,exdays) {
 
 function pm_switch(chbx) {
   if (chbx.checked == true)
-    pm = "pm25";
+    pm = 'pm25';
   else
-    pm = "pm10";
+    pm = 'pm10';
 
-  d3.csv("csv/" + pm + ".csv", function(data) {
-    var rateById = {};
-  	data.forEach(function(d) {
-  		rateById[d.province] = +d.value;
-  	});
-
-  	map.selectAll("path")
-  	  .style("fill", function(d) {
-        return getcolor(rateById[d.properties.name]);
-      });
-  });
+	map.selectAll("path")
+	  .style("fill", function(d) {
+      if(pm === 'pm10')
+        return getcolor(pm10_data[d.properties.name]);
+      else
+        return getcolor(pm25_data[d.properties.name]);
+    });
 }
 
 function toRadians (angle) {
@@ -285,6 +296,18 @@ function getData() {
 			});
 		});
 	}
+
+  d3.csv("csv/pm10.csv", function(data) {
+    data.forEach(function(d) {
+      pm10_data[d.province] = +d.value;
+    })
+  });
+
+  d3.csv("csv/pm25.csv", function(data) {
+    data.forEach(function(d) {
+      pm25_data[d.province] = +d.value;
+    })
+  });
 }
 
 Date.prototype.yyyymmdd = function() {
