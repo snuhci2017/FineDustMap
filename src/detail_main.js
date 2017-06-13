@@ -72,7 +72,7 @@ $("#play-button").click(function(d) {
 		curr_date = new Date(start_date);
 		$( "#slider-range" )
 			.slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
-		$( "#clock" ).text(start_date + " - " + end_date);
+		$( "#clock" ).text("");
 
 		// 화면을 최신 데이터에 맞도록 맞춤
     }
