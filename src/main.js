@@ -1,4 +1,4 @@
-var width = 640,
+var width = 780,
     height = 700,
     centered;
 
@@ -34,7 +34,6 @@ $( function() {
 
 $("#play-button").click(function(d) {
 	if(playing === false) {
-		//getData();
 		d3.select(this).attr('src', 'stop-circle.png');
 		timer = setInterval(function(){
 			sequenceMap();
@@ -165,7 +164,26 @@ svg.append("text")
 	.attr("font-size", "20px")
 	.attr("id", "zoom-in");
 
-//getData();
+/*
+var legend = svg.selectAll(".legend")
+  .enter().append("g")
+    .attr("class", "legend")
+    .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+  legend.append("circle")
+      .attr("cx", width + margin.left)
+	  .attr('cy', 3)
+      .attr("width", 5)
+	  .attr('height', 5)
+      .style("fill", function(d) {return color(d.location);});
+
+  legend.append("text")
+      .attr("x", width - 10 + margin.left)
+	  .attr('y', 5)
+      .attr("dy", ".35em")
+      .style("text-anchor", "end")
+      .text(function(d) {return d.location;});
+*/
 
 function getcolor(val) {
 	if(val >= 151) return "#d7191c";
