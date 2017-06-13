@@ -311,7 +311,7 @@ function myclick(d) {
   curr_date = new Date(start_date);
   $( "#slider-range" )
   .slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
-  $( "#clock" ).text(start_date + " - " + end_date);
+  $( "#clock" ).text(start_date.toDateString() + " - " + end_date.toDateString());
 
   remake_province_data();
 

@@ -120,7 +120,8 @@ d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
 			rateById[d.province] = +d.value;
 		});
 
-  	map.selectAll("path")
+  	map.append("g")
+	  .selectAll("path")
       .data(features)
     .enter().append("path")
     	.attr("dy", ".35em")
