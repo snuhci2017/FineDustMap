@@ -9,6 +9,7 @@ var end_date = new Date("2016-12-31");
 var attributeArray = [];
 var curr_date = new Date(start_date);
 var timer;
+var sigungu = "";
 
 pm = getCookie("pm");
 
@@ -128,7 +129,8 @@ d3.csv("csv/projection_data.csv", function(data) {
             return getcolor(rateById[d.properties.SIG_KOR_NM]);
           })
   		.on("mouseenter", mymouseenter)
-  		.on("mouseleave", mymouseleave);
+  		.on("mouseleave", mymouseleave)
+      .on("click", myclick);
   	})
 
     d3.csv("csv/electric.csv", function(data) {
@@ -228,6 +230,44 @@ function elecmouseenter(d) {
 
 function elecmouseleave(d) {
 	$("#elec-mouse-enter").remove();
+}
+
+function myclick(d) {
+	var x, y, k;
+	var text;
+	if (d && centered !== d) {
+		var centroid = path.centroid(d);
+		x = centroid[0];
+		y = centroid[1];
+		k = 4;
+		centered = d;
+    sigungu = d.properties.SIG_KOR_NM;
+		// text = "zoom in " + d.properties.name;
+	} else {
+		x = width / 2;
+		y = height / 2;
+		k = 1;
+		centered = null;
+		sigungu = "";
+	}
+  
+  clearInterval(timer);
+  $("#play-button").attr('src', 'play-circle.png');
+  playing = false;
+  start_date = new Date("2016-01-01");
+  end_date = new Date("2016-12-31");
+  curr_date = new Date(start_date);
+  $( "#slider-range" )
+  .slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
+  $( "#clock" ).text(start_date + " - " + end_date);
+
+  remake_province_data();
+
+	map.transition()
+		.duration(750)
+		.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
+		.style("stroke-width", 1.5 / k + "px");
+	// $("#zoom-in").text(text);
 }
 
 function getData() {
