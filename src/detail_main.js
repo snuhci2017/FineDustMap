@@ -111,7 +111,7 @@ d3.csv("csv/projection_data.csv", function(data) {
   	d3.csv("csv/" + province_name + "_" + pm + ".csv", function(data) {
   		var rateById = {};
   		data.forEach(function(d) {
-  			//console.log(d);
+  			// console.log(d);
   			rateById[d.gungu] = +d.value;
   		});
 
@@ -132,13 +132,21 @@ d3.csv("csv/projection_data.csv", function(data) {
   	})
 
     d3.csv("csv/electric.csv", function(data) {
+      var elec = [];
+      data.forEach(function(d) {
+        if(d.province === province_name)
+          elec.push(d);
+      })
+
     	map.selectAll("circle")
-    		.data(data)
+    		.data(elec)
     		.enter().append("circle")
     			.attr("cx", function(d) { return projection([d.lon, d.lat])[0]; })
     			.attr("cy", function(d) { return projection([d.lon, d.lat])[1]; })
-    			.attr("r", 2)
-          .style("fill","#f00");
+    			.attr("r", 4)
+          .style("fill","#f00")
+          .on("mouseenter", elecmouseenter)
+          .on("mouseleave", elecmouseleave);
     });
   });
 });
@@ -169,7 +177,7 @@ function pm_switch(chbx) {
     pm = "pm25";
   else
     pm = "pm10";
-//  console.log(pm);
+ // console.log(pm);
 
   d3.json(map_path, function(error, data) {
   	var features = topojson.feature(data, data.objects["TL_SCCO_SIG_crs84-m2s"]).features;
@@ -209,11 +217,24 @@ function mymouseleave(d) {
 	$("#mouse-enter").remove();
 }
 
+function elecmouseenter(d) {
+	map.append("text")
+		.attr("x", projection([d.lon, d.lat])[0])
+		.attr("y", projection([d.lon, d.lat])[1])
+		.attr("font-size", "15px")
+		.attr("id", "elec-mouse-enter")
+		.text(d.name);
+}
+
+function elecmouseleave(d) {
+	$("#elec-mouse-enter").remove();
+}
+
 function getData() {
 	d3.csv("csv/TS_DLL_AVG.csv", function(data) {
 		data.forEach(function(d) {
 			if(province_name === d.LOC) {
-				//console.log(d);
+				// console.log(d);
 				attributeArray.push(d);
 			}
 		});

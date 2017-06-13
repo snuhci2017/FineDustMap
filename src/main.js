@@ -127,8 +127,10 @@ d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
 			.enter().append("circle")
 				.attr("cx", function(d) { return projection([d.lon, d.lat])[0]; })
 				.attr("cy", function(d) { return projection([d.lon, d.lat])[1]; })
-				.attr("r", 2)
-			.style("fill","#f00");
+				.attr("r", 4)
+			.style("fill","#f00")
+      .on("mouseenter", elecmouseenter)
+      .on("mouseleave", elecmouseleave);
 	});
 
 	d3.csv("csv/wind.csv", function(data) {
@@ -216,6 +218,19 @@ function mymouseenter(d) {
 
 function mymouseleave(d) {
 	$("#mouse-enter").remove();
+}
+
+function elecmouseenter(d) {
+	map.append("text")
+		.attr("x", projection([d.lon, d.lat])[0])
+		.attr("y", projection([d.lon, d.lat])[1])
+		.attr("font-size", "15px")
+		.attr("id", "elec-mouse-enter")
+		.text(d.name);
+}
+
+function elecmouseleave(d) {
+	$("#elec-mouse-enter").remove();
 }
 
 function detailpage(index1, index2) {
