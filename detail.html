@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel='stylesheet' type='text/css' href='detail_style.css'>
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  </head>
+  
+  <body>
+    <div id="prov_name"></div>
+	<div class="notify">pm 10 </div>
+	<label class="switch">
+	  <input type="checkbox" onclick="pm_switch(this)" unchecked>
+	  <div class="slider"></div>
+	</label>
+	<div class="notify"> pm 2.5</div>
+	
+	<div class="container">
+      <div class="map-container">
+        <div id="map"></div>
+      </div>
+	  <div class="dust-chart">
+	    <div id="chart"></div>
+	  </div>
+    </div>
+	
+	<div class="container2">
+		<div id="player" class="player_container">
+		  <input id="play-button" type="image" src="play-circle.png">
+		  <span id="clock"></span>
+		  <div id="slider-range"></div>
+		</div>
+    </div>
+	
+    <script src='https://code.jquery.com/jquery-3.1.0.min.js'></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	<script src="http://d3js.org/topojson.v1.min.js"></script>
+    <script src='detail_main.js'></script>
+    <script src='detail_chart.js'></script>
+  </body>
+</html>
