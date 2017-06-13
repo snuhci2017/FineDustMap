@@ -76,7 +76,7 @@ $("#play-button").click(function(d) {
 		$( "#clock" ).text("");
 
 		// 화면을 최신 데이터에 맞도록 맞춤
-		firstMap()
+		firstMap();
     }
 });
 
