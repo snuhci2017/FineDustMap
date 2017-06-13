@@ -79,6 +79,7 @@ $("#play-button").click(function(d) {
 
 		// 화면을 최신 데이터에 맞도록 맞춤
         redraw_chart();
+		    firstMap()
     }
 });
 
@@ -155,6 +156,23 @@ d3.csv("csv/projection_data.csv", function(data) {
     });
   });
 });
+
+var legend = svg.append("g")
+    .attr("class", "legend")
+    .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+  legend.append("circle")
+      .attr("cx", width - 10)
+	  .attr("cy", 40)
+      .attr("r", 4)
+	  .style("fill", "#f00");
+
+  legend.append("text")
+      .attr("x", width - 20)
+	  .attr("y", 40)
+      .attr("dy", ".35em")
+      .style("text-anchor", "end")
+      .text("화력 발전소");
 
 function getCookie(c_name) {
 	var i,x,y,ARRcookies=document.cookie.split(";");
@@ -364,6 +382,21 @@ function sequenceMap() {
 					}
 				}
 			});
+}
+
+function firstMap() {
+	d3.csv("csv/" + province_name + "_" + pm + ".csv", function(data) {
+		var rateById = {};
+  		data.forEach(function(d) {
+  			// console.log(d);
+  			rateById[d.gungu] = +d.value;
+  		});
+
+		map.selectAll("path")
+			.style("fill", function(d) {
+				return getcolor(rateById[d.properties.SIG_KOR_NM]);
+			});
+	});
 }
 
 $(document).ready(getData);

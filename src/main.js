@@ -1,4 +1,4 @@
-var width = 780,
+var width = 960,
     height = 700,
     centered;
 
@@ -70,6 +70,17 @@ $("#play-button").click(function(d) {
     	$( "#clock" ).text("");
 
     	// 화면을 최신 데이터에 맞도록 맞춤
+        clearInterval(timer);
+        $("#play-button").attr('src', 'play-circle.png');
+        playing = false;
+    		start_date = new Date("2016-01-01");
+    		end_date = new Date("2016-12-31");
+    		curr_date = new Date(start_date);
+    		$( "#slider-range" )
+    			.slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
+    		$( "#clock" ).text("");
+
+    		firstMap();
     }
 });
 
@@ -95,7 +106,7 @@ map.append("svg:defs").append("svg:marker")
 
 var projection = d3.geo.mercator()
     .scale(5500)
-	.center([128,36])
+	.center([129,36])
 	.translate([width/2, height/2]);
 
 var path = d3.geo.path().projection(projection);
@@ -165,26 +176,37 @@ svg.append("text")
 	.attr("font-size", "20px")
 	.attr("id", "zoom-in");
 
-/*
-var legend = svg.selectAll(".legend")
-  .enter().append("g")
+var legend = svg.append("g")
     .attr("class", "legend")
     .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
 
   legend.append("circle")
-      .attr("cx", width + margin.left)
-	  .attr('cy', 3)
-      .attr("width", 5)
-	  .attr('height', 5)
-      .style("fill", function(d) {return color(d.location);});
+      .attr("cx", width - 10)
+	  .attr("cy", 40)
+      .attr("r", 4)
+	  .style("fill", "#f00");
 
   legend.append("text")
-      .attr("x", width - 10 + margin.left)
-	  .attr('y', 5)
+      .attr("x", width - 20)
+	  .attr("y", 40)
       .attr("dy", ".35em")
       .style("text-anchor", "end")
-      .text(function(d) {return d.location;});
-*/
+      .text("화력 발전소");
+
+  legend.append("line")
+    .attr("x1", width - 10)
+	.attr("y1", 68)
+	.attr("x2", width - 10)
+	.attr("y2", 54)
+	.style("stroke", "blue")
+	.attr("marker-end", "url(#arrow-header)");
+
+  legend.append("text")
+    .attr("x", width - 20)
+	.attr("y", 60)
+	.attr("dy", ".35em")
+	.style("text-anchor", "end")
+	.text("풍향");
 
 function getcolor(val) {
 	if(val >= 151) return "#d7191c";
@@ -406,6 +428,39 @@ function sequenceMap() {
 			//.attr("marker-end", "url(#arrow-header)");
 
 	//});
+}
+
+function firstMap() {
+	d3.csv("csv/" + pm + ".csv", function(data) {
+		var rateById = {};
+		data.forEach(function(d) {
+			rateById[d.province] = +d.value;
+		});
+		map.selectAll("path")
+			.style("fill", function(d) {
+				return getcolor(rateById[d.properties.name]);
+			});
+	});
+
+	d3.csv("csv/wind.csv", function(data) {
+		map.selectAll("line")
+			.attr("x1", function(d) { return projection([d.lon, d.lat])[0]; })
+			.attr("y1", function(d) { return projection([d.lon, d.lat])[1]; })
+			.attr("x2", function(d) {
+				var x = +d.lon + (+d.speed * Math.cos(toRadians(+d.direction)) * 0.08);
+				var y = +d.lat + (+d.speed * Math.sin(toRadians(+d.direction)) * 0.08);
+				return projection([x, y])[0];
+			})
+			.attr("y2", function(d) {
+				var x = +d.lon + (+d.speed * Math.cos(toRadians(+d.direction)) * 0.08);
+				var y = +d.lat + (+d.speed * Math.sin(toRadians(+d.direction)) * 0.08);
+				return projection([x, y])[1];
+			});
+
+		map.select("#arrow-header")
+			.selectAll("path")
+				.style("fill", "blue");
+	});
 }
 
 $(document).ready(getData);
