@@ -1,7 +1,8 @@
 var svg_width = 940, svg_height = 500,
     margin = {top: 40, right: 150, bottom: 100, left: 50},
     width = svg_width - margin.left - margin.right,
-    height = svg_height - margin.top - margin.bottom;
+    height = svg_height - margin.top - margin.bottom,
+    province_data = [];
 
 var svg = d3.select("#chart").append("svg")
     //.attr("width", svg_width)
@@ -13,7 +14,6 @@ var chart = svg.append("g")
           .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 var parseTime = d3.time.format("%Y%m%d").parse;
-var province_data = [];
 
 var x = d3.time.scale()
       .range([0, width]);
@@ -34,8 +34,7 @@ var line2 = d3.svg.line()
 
 d3.csv("csv/TS_DL_AVG.csv", function(data) {
   data.forEach(function (d) {
-    if(d.LOC == province_name) {
-      // console.log(d.DATE1);
+    if(d.LOC === province_name) {
       d.date = parseTime(d.DATE1);
       d.a_pm10 = Number(d.a_pm10);
       d.a_pm25 = Number(d.a_pm25);
@@ -57,7 +56,6 @@ d3.csv("csv/TS_DL_AVG.csv", function(data) {
       .attr("class", "axis axis--y")
       .call(d3.svg.axis().scale(y1).orient('left'))
     .append("text")
-      // .attr("transform", "rotate(-90)")
       .attr("transform", "translate(-40, -30)")
       .attr("y", 6)
       .attr("dy", "0.71em")
@@ -69,7 +67,6 @@ d3.csv("csv/TS_DL_AVG.csv", function(data) {
       .attr("class", "axis axis--y2")
       .call(d3.svg.axis().scale(y2).orient('right'))
     .append("text")
-      // .attr("transform", "rotate(-90)")
       .attr("transform", "translate(0, -30)")
       .attr("y", 6)
       .attr("dy", "0.71em")
@@ -109,8 +106,10 @@ d3.csv("csv/TS_DL_AVG.csv", function(data) {
       .attr("width", width)
       .attr("height", height);
 
-  sequenceChart();
-
+  x.domain([
+    d3.time.month.offset(d3.max(province_data, function(d) { return d.date; }), -3),
+    d3.max(province_data, function(d) { return d.date; })
+  ]);
 
   chart.append("g")
       .attr("class", "axis axis--x")
@@ -135,11 +134,90 @@ d3.csv("csv/TS_DL_AVG.csv", function(data) {
     .attr("clip-path", "url(#clip)");
 });
 
+function remake_province_data() {
+  province_data = [];
+  // $("#chart").empty();
+  if(sigungu === "") {
+    d3.csv("csv/TS_DL_AVG.csv", function(data) {
+      data.forEach(function (d) {
+        if(d.LOC === province_name) {
+          d.date = parseTime(d.DATE1);
+          d.a_pm10 = Number(d.a_pm10);
+          d.a_pm25 = Number(d.a_pm25);
+          province_data.push(d);
+        }
+      });
+      redraw_chart();
+    });
+  }
+
+  else {
+    d3.csv("csv/TS_DLL_AVG.csv", function(data) {
+      data.forEach(function (d) {
+        if(d.LOC === province_name && d.LOC_1 === sigungu) {
+          d.date = parseTime(d.DATE1);
+          d.a_pm10 = Number(d.a_pm10);
+          d.a_pm25 = Number(d.a_pm25);
+          province_data.push(d);
+        }
+      });
+      redraw_chart();
+    });
+  }
+}
+
+function redraw_chart() {
+  y1.domain([
+    d3.min(province_data, function(d){return d.a_pm10;}),
+    d3.max(province_data, function(d){return d.a_pm10;})
+  ]);
+
+  y2.domain([
+    d3.min(province_data, function(d){return d.a_pm25;}),
+    d3.max(province_data, function(d){return d.a_pm25;})
+  ]);
+
+  chart.select('.axis--y1')
+      .call(d3.svg.axis().scale(y1).orient('left'))
+    .append("text")
+      .attr("transform", "translate(-40, -30)")
+      .attr("y", 6)
+      .attr("dy", "0.71em")
+      .attr("fill", "#000")
+      .text("PM10");
+
+  chart.select('.axis--y2')
+      .call(d3.svg.axis().scale(y2).orient('right'))
+    .append("text")
+      .attr("transform", "translate(0, -30)")
+      .attr("y", 6)
+      .attr("dy", "0.71em")
+      .attr("fill", "#000")
+      .text("PM2.5");
+
+  x.domain([
+    d3.time.month.offset(d3.max(province_data, function(d) { return d.date; }), -3),
+    d3.max(province_data, function(d) { return d.date; })
+  ]);
+
+  chart.select(".axis--x")
+      .call(d3.svg.axis().scale(x).orient('bottom'))
+      .attr("transform", "translate(0," + height + ")")
+      .selectAll("text")
+        .attr("x", 9)
+        .attr("y", -9)
+        .attr("transform", "rotate(90)")
+        .style("text-anchor", "start");
+
+  chart.select(".line1")
+    .attr("d", line1(province_data));
+
+  chart.select(".line2")
+    .attr("d", line2(province_data));
+}
+
 function sequenceChart() {
   x.domain([
-    // d3.time.month.offset(d3.max(province_data, function(d) { return d.date; }), -3),
-    // d3.min(province_data, function(d) { return d.date; }),
-    // d3.max(province_data, function(d) { return d.date; })
     d3.time.month.offset(curr_date.getTime(), -3),
     curr_date.getTime()
   ]);
@@ -152,11 +230,6 @@ function sequenceChart() {
         .attr("y", -9)
         .attr("transform", "rotate(90)")
         .style("text-anchor", "start");
-    // .append("text")
-    //   .attr("transform", "translate(" + width +", 0)")
-    //   .attr("dy", "0.71em")
-    //   .attr("fill", "#000")
-    //   .text("date");
 
   chart.select(".line1")
     .attr("d", line1(province_data));
