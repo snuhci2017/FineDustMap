@@ -34,6 +34,8 @@ $( function() {
 
 $("#play-button").click(function(d) {
 	if(playing === false) {
+    // map.selectAll("path").off("mouseenter", mymouseenter);
+
 		d3.select(this).attr('src', 'stop-circle.png');
 		timer = setInterval(function(){
 			sequenceMap();
@@ -57,17 +59,17 @@ $("#play-button").click(function(d) {
         }, 1000);
         playing = true;
     } else {
-        clearInterval(timer);
-        $("#play-button").attr('src', 'play-circle.png');
-        playing = false;
-		start_date = new Date("2016-01-01");
-		end_date = new Date("2016-12-31");
-		curr_date = new Date(start_date);
-		$( "#slider-range" )
-			.slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
-		$( "#clock" ).text("");
+      clearInterval(timer);
+      $("#play-button").attr('src', 'play-circle.png');
+      playing = false;
+    	start_date = new Date("2016-01-01");
+    	end_date = new Date("2016-12-31");
+    	curr_date = new Date(start_date);
+    	$( "#slider-range" )
+    		.slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
+    	$( "#clock" ).text("");
 
-		// 화면을 최신 데이터에 맞도록 맞춤
+    	// 화면을 최신 데이터에 맞도록 맞춤
     }
 });
 
@@ -135,7 +137,6 @@ d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
 	});
 
 	d3.csv("csv/wind.csv", function(data) {
-
 		map.selectAll("line")
 			.data(data)
 			.enter().append("line")
@@ -194,25 +195,6 @@ function getcolor(val) {
 }
 
 function myclick(d) {
-	// var x, y, k;
-  //
-	// if (d && centered !== d) {
-	// 	var centroid = path.centroid(d);
-	// 	x = centroid[0];
-	// 	y = centroid[1];
-	// 	k = 4;
-	// 	centered = d;
-	// } else {
-	// 	x = width / 2;
-	// 	y = height / 2;
-	// 	k = 1;
-	// 	centered = null;
-	// }
-  //
-	// map.transition()
-	// 	.duration(750)
-	// 	.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
-	// 	.style("stroke-width", 1.5 / k + "px");
 	detailpage(d.properties.name_eng, pm);
 }
 
@@ -232,12 +214,25 @@ function mymouseenter(d) {
 		.attr("class", "mouse-enter")
 		.text(text);
 
+  if(playing === true)
+    return;
+
+	var result = $.grep(attributeArray, function(e){
+		var date = curr_date.yyyymmdd();
+		return date === e["DATE1"];
+	});
+
+  var val = $.grep(result, function(c) {
+    return c.LOC === d.properties.name_eng;
+  });
+
 	map.append("text")
 		.attr("x", x)
 		.attr("y", y)
     .attr("dy", "1em")
 		.attr("font-size", "15px")
 		.attr("class", "mouse-enter")
+		// .text('PM10: ' + val[0].a_pm10);
 		.text('PM10: ' + pm10_data[text]);
 
 	map.append("text")
