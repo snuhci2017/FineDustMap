@@ -217,7 +217,7 @@ function getcolor(val) {
 }
 
 function myclick(d) {
-	detailpage(d.properties.name_eng, pm);
+	detailpage(d.properties.name_eng, pm, d.properties.name);
 }
 
 function mymouseenter(d) {
@@ -283,9 +283,10 @@ function elecmouseleave(d) {
 	$("#elec-mouse-enter").remove();
 }
 
-function detailpage(index1, index2) {
+function detailpage(index1, index2, index3) {
 	setCookie("province", index1, 0.5);
 	setCookie("pm", index2, 0.5);
+	setCookie("kor_nm", index3, 0.5);
 	p = "detail.html";
 	window.location.href=p;
 }

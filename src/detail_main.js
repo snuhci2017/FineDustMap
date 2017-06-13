@@ -1,5 +1,5 @@
-var width = 960,
-    height = 500,
+var width = 800,
+    height = 400,
 	centered;
 
 var playing = false;
@@ -16,13 +16,9 @@ var pm10_data = {}, pm25_data = {};
 pm = getCookie("pm");
 
 var province_name = getCookie("province");
-$("#prov_name").text(province_name);
+var kor_province = getCookie("kor_nm");
+$("#prov_name").text(kor_province);
 
-var tooltip = $('<div id="tooltip" />').css({
-    position: 'absolute',
-    top: -25,
-    left: -10
-}).hide();
 $( function() {
 		$( "#slider-range" ).slider({
 			range: true,
@@ -35,10 +31,6 @@ $( function() {
 				curr_date = new Date(start_date);
 				$( "#clock" ).text(start_date.toDateString() + " - " + end_date.toDateString());
 			}
-		}).find(".ui-slider-handle").append(tooltip).hover(function() {
-			tooltip.show();
-		}, function() {
-			tooltip.hide();
 		});
 });
 
@@ -52,7 +44,7 @@ $("#play-button").click(function(d) {
 				curr_date.setDate(curr_date.getDate() + 1);
 				$( "#slider-range" )
 					.slider('values', [curr_date.getTime()/1000, end_date.getTime()/1000]);
-				$( "#clock" ).text(curr_date + " - " + end_date);
+				$( "#clock" ).text(curr_date.toDateString() + " - " + end_date.toDateString());
 			} else {
 				clearInterval(timer);
 				$("#play-button").attr('src', 'play-circle.png');
@@ -62,7 +54,7 @@ $("#play-button").click(function(d) {
 				curr_date = new Date(start_date);
 				$( "#slider-range" )
 					.slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
-				$( "#clock" ).text(start_date + " - " + end_date);
+				$( "#clock" ).text(start_date.toDateString() + " - " + end_date.toDateString());
 			}
         }, 1000);
         playing = true;
@@ -299,7 +291,8 @@ function myclick(d) {
 		y = centroid[1];
 		k = 4;
 		centered = d;
-    sigungu = d.properties.SIG_KOR_NM;
+		sigungu = d.properties.SIG_KOR_NM;
+		$("#prov_name").text(kor_province + " - " + sigungu);
 		// text = "zoom in " + d.properties.name;
 	} else {
 		x = width / 2;
@@ -307,6 +300,7 @@ function myclick(d) {
 		k = 1;
 		centered = null;
 		sigungu = "";
+		$("#prov_name").text(kor_province);
 	}
 
   clearInterval(timer);
