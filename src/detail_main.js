@@ -10,6 +10,7 @@ var attributeArray = [];
 var curr_date = new Date(start_date);
 var timer;
 var sigungu = "";
+var elec = [];
 
 var pm10_data = {}, pm25_data = {};
 
@@ -130,7 +131,6 @@ d3.csv("csv/projection_data.csv", function(data) {
   	})
 
     d3.csv("csv/electric.csv", function(data) {
-      var elec = [];
       data.forEach(function(d) {
         if(d.province === province_name)
           elec.push(d);
@@ -165,7 +165,17 @@ var legend = svg.append("g")
       .attr("dy", ".35em")
       .style("text-anchor", "end")
       .text("화력 발전소");
-
+/* 
+drawPlantInfo();
+function drawPlantInfo() {
+	console.log(elec.length);
+	if(elec.length !== 0) {
+		$('#plant').append("<p>draw please" + "</p>");
+	} else {
+		// No data
+	}
+}
+*/  
 function getCookie(c_name) {
 	var i,x,y,ARRcookies=document.cookie.split(";");
 	for (i=0;i<ARRcookies.length;i++)
