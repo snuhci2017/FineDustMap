@@ -76,6 +76,7 @@ $("#play-button").click(function(d) {
 		$( "#clock" ).text("");
 
 		// 화면을 최신 데이터에 맞도록 맞춤
+		firstMap()
     }
 });
 
@@ -329,6 +330,21 @@ function sequenceMap() {
 					}
 				}
 			});
+}
+
+function firstMap() {
+	d3.csv("csv/" + province_name + "_" + pm + ".csv", function(data) {
+		var rateById = {};
+  		data.forEach(function(d) {
+  			// console.log(d);
+  			rateById[d.gungu] = +d.value;
+  		});
+		
+		map.selectAll("path")
+			.style("fill", function(d) {
+				return getcolor(rateById[d.properties.SIG_KOR_NM]);
+			});
+	});
 }
 
 $(document).ready(getData);

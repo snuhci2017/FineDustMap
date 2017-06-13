@@ -65,7 +65,7 @@ $("#play-button").click(function(d) {
 			.slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
 		$( "#clock" ).text("");
 
-		// 화면을 최신 데이터에 맞도록 맞춤
+		firstMap();
     }
 });
 
@@ -399,6 +399,39 @@ function sequenceMap() {
 			//.attr("marker-end", "url(#arrow-header)");
 
 	//});
+}
+
+function firstMap() {
+	d3.csv("csv/" + pm + ".csv", function(data) {
+		var rateById = {};
+		data.forEach(function(d) {
+			rateById[d.province] = +d.value;
+		});
+		map.selectAll("path")
+			.style("fill", function(d) {
+				return getcolor(rateById[d.properties.name]);
+			});
+	});
+	
+	d3.csv("csv/wind.csv", function(data) {
+		map.selectAll("line")
+			.attr("x1", function(d) { return projection([d.lon, d.lat])[0]; })
+			.attr("y1", function(d) { return projection([d.lon, d.lat])[1]; })
+			.attr("x2", function(d) {
+				var x = +d.lon + (+d.speed * Math.cos(toRadians(+d.direction)) * 0.08);
+				var y = +d.lat + (+d.speed * Math.sin(toRadians(+d.direction)) * 0.08);
+				return projection([x, y])[0];
+			})
+			.attr("y2", function(d) {
+				var x = +d.lon + (+d.speed * Math.cos(toRadians(+d.direction)) * 0.08);
+				var y = +d.lat + (+d.speed * Math.sin(toRadians(+d.direction)) * 0.08);
+				return projection([x, y])[1];
+			});
+
+		map.select("#arrow-header")
+			.selectAll("path")
+				.style("fill", "blue");
+	});
 }
 
 $(document).ready(getData);
