@@ -7,7 +7,7 @@
 
 ## Github Page
 * https://snuhci2017.github.io/FineDustMap/src/
-* chrome 방화벽 해제, 스크립트 로드 가능
+* chrome 방화벽 해제, 안전하지 않은 스크립트 로드
 
 ## Data
 
@@ -27,32 +27,6 @@
 > - preprocessing: MySQL
 > - 과거 데이터의 경우 약 300만 row를 정제했다 
 > - MySQL code
-> ```{SQL}
-CREATE TABLE TEMP
-(
-  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  LOC VARCHAR(100) NOT NULL,
-    LOC_1 VARCHAR(50) NOT NULL,
-    DATE1 VARCHAR(12) NOT NULL,
-    PM10 INT NOT NULL DEFAULT -1,
-    PM25 INT NOT NULL DEFAULT -1,
-    PRIMARY KEY (id)
-) ENGINE=INNODB;
-SELECT TA.DATE1, TA.LOC, TB.a_pm10, IFNULL(TC.a_pm25, 0) a_pm25
-FROM (SELECT DATE1, LOC FROM TEMP GROUP BY 1, 2) TA
-  LEFT JOIN (select DATE1, LOC, AVG(PM10) a_pm10 from TEMP where PM10 > 0 GROUP BY 1, 2) TB
-    ON TA.DATE1 = TB.DATE1 AND TA.LOC = TB.LOC
-  LEFT JOIN (select DATE1, LOC, AVG(PM25) a_pm25 from TEMP where PM25 > 0 GROUP BY 1, 2) TC
-    ON TA.DATE1 = TC.DATE1 AND TA.LOC = TC.LOC
-ORDER BY 1, 2;
-SELECT TA.DATE1, TA.LOC, TA.LOC_1, TB.a_pm10, IFNULL(TC.a_pm25, 0) a_pm25
-FROM (SELECT DATE1, LOC, LOC_1 FROM TEMP GROUP BY 1, 2, 3) TA
-  LEFT JOIN (select DATE1, LOC, LOC_1, AVG(PM10) a_pm10 from TEMP where PM10 > 0 GROUP BY 1, 2, 3) TB
-    ON TA.DATE1 = TB.DATE1 AND TA.LOC = TB.LOC AND TA.LOC_1 = TB.LOC_1
-  LEFT JOIN (select DATE1, LOC, LOC_1, AVG(PM25) a_pm25 from TEMP where PM25 > 0 GROUP BY 1, 2, 3) TC
-    ON TA.DATE1 = TC.DATE1 AND TA.LOC = TC.LOC AND TA.LOC_1 = TC.LOC_1
-ORDER BY 1, 2;
-```
 
 
 > **해안 풍향/풍속 data**
@@ -60,7 +34,6 @@ ORDER BY 1, 2;
 > - 측정 source: 부표
 > - speed(m/s), direction(degree)
 > - source의 위치(longitude, latitude)
-
 
 
 > **화력 발전소 data**
@@ -72,8 +45,17 @@ ORDER BY 1, 2;
 > - 주로 월별 데이터로 제공되었고, 일별 데이터는 찾기 힘들었다
 
 
+## Persona
+충청남도 도의원 안찰스씨는 52세로, 두 딸과 아내와 함께 충청남도 당진시에 거주하고 있다. 
+그의 가장 큰 관심사는 새로운 정책을 제안하고 통과시킴으로써 정치적 평판을 올리는 것이다. 
+그는 요즈음 이슈인 미세먼지에 관심이 있었으나 정부가 원인의 80% 이상을 중국에게 돌리자 도의원으로서 할 수 있는 일은 없다고 판단했다. 
+하지만 정부가 바뀌고, 새로운 미세먼지 정책이 나오면서 안찰스씨는 다시 미세먼지에 관심을 기울이게 되었다. 
+그는 충청남도가 전국 미세먼지 1위라는 사실을 적시하고 있으나 정확한 원인이 어디서부터 나오는지 정확한 연구 결과나 
+데이터 분석을 찾기가 힘들었고, 전문가의 조언도 쉽게 이해하기 어려웠다. 비전문가인 그는 알아듣기 쉬우면서도 
+정확한 미세먼지에 대한 통찰을 얻고자 한다. 
+
+
 ## Functionality
-**미세먼지 농도**와 **화력 발전소**, **바람 방향**을 시각화함으로써 정책 결정자가 미세먼지의 원인을 이해하고 그에 대한 대응 방안을 마련할 수 있도록 돕는다
 
 
 ## Design
@@ -111,9 +93,19 @@ Visual Encoding - position on common scale
 
 
 ## Scenario
-
+충청남도 도지사 안찰스씨는 인터넷에서 FineDustMap 사이트를 발견하고 방문한다. 
 
 ## Expectation
+* Deciding where to build a new measuring station
+* Thinking about the reasons of the fine dust
+* Deciding to build a fine dust reduction device in the power plant
+* Deciding where to concentrate the effort to reduce fine dust
+* Knowing the degree of the fine dust in a certain district
+* Understanding the changing fine dust density with the wind direction
 
 
 ## Further
+* Add more past data
+* Simulation with  Thermal Power Plant (On/Off)
+* Add China’s Dust density visualization
+* Real Time Service (github page: static)
