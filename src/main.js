@@ -57,6 +57,8 @@ $("#play-button").click(function(d) {
 				$( "#slider-range" )
 					.slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
 				$( "#clock" ).text(start_date.toDateString() + " - " + end_date.toDateString());
+				
+				firstMap();
 			}
         }, 1000);
         playing = true;
@@ -69,7 +71,7 @@ $("#play-button").click(function(d) {
     	curr_date = new Date(start_date);
     	$( "#slider-range" )
     		.slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
-    	$( "#clock" ).text("");
+    	$( "#clock" ).text(start_date.toDateString() + " - " + end_date.toDateString());
 
     	// 화면을 최신 데이터에 맞도록 맞춤
         clearInterval(timer);
@@ -177,14 +179,6 @@ d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
 			  .attr("marker-end", "url(#arrow-header)");
 	});
 });
-
-/*
-svg.append("text")
-	.attr("x", 10)
-	.attr("y", 20)
-	.attr("font-size", "20px")
-	.attr("id", "zoom-in");
-*/
 
 // add legend to the map (화력발전소, 풍향)
 var legend = svg.append("g")

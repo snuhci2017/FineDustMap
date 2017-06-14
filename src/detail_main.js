@@ -2,44 +2,49 @@ var width = 800,
     height = 400,
 	centered;
 
-var playing = false;
-var pm = "pm10";
-var start_date = new Date("2016-01-01");
-var end_date = new Date("2016-12-31");
-var attributeArray = [];
-var curr_date = new Date(start_date);
-var timer;
+var playing = false;	// true: animation is playing
+var pm = "pm10";		// pm mode: pm10 or pm2.5
+var start_date = new Date("2016-01-01");	// slider start date
+var end_date = new Date("2016-12-31");		// slider end date
+var attributeArray = [];					// array that stores prev dust data
+var curr_date = new Date(start_date);		// current playing date in the animation
+var timer;									// timer to count the date
 var sigungu = "";
 
 var pm10_data = {}, pm25_data = {};
 
+// receive pm mode, province name(eng/kor) from the previous page
 pm = getCookie("pm");
-
 var province_name = getCookie("province");
 var kor_province = getCookie("kor_nm");
+
+// change page's province name text
 $("#prov_name").text(kor_province);
 
+// set slider min-max values and set the slide event
 $( function() {
-		$( "#slider-range" ).slider({
-			range: true,
-			min: new Date("2016-01-01").getTime()/1000,
-			max: new Date("2016-12-31").getTime()/1000,
-			values: [new Date("2016-01-01").getTime()/1000, new Date("2016-12-31").getTime()/1000],
-			slide: function( event, ui ) {
-				start_date = new Date(ui.values[ 0 ] *1000);
-				end_date = new Date(ui.values[ 1 ] *1000);
-				curr_date = new Date(start_date);
-				$( "#clock" ).text(start_date.toDateString() + " - " + end_date.toDateString());
-			}
-		});
+	$( "#slider-range" ).slider({
+		range: true,
+		min: new Date("2016-01-01").getTime()/1000,
+		max: new Date("2016-12-31").getTime()/1000,
+		values: [new Date("2016-01-01").getTime()/1000, new Date("2016-12-31").getTime()/1000],
+		slide: function( event, ui ) {
+			start_date = new Date(ui.values[ 0 ] *1000);
+			end_date = new Date(ui.values[ 1 ] *1000);
+			curr_date = new Date(start_date);
+			$( "#clock" ).text(start_date.toDateString() + " - " + end_date.toDateString());
+		}
+	});
 });
 
+// play button click event
 $("#play-button").click(function(d) {
+	// set the timer and start animation
 	if(playing === false) {
 		d3.select(this).attr('src', 'stop-circle.png');
 		timer = setInterval(function(){
 			sequenceMap();
-      sequenceChart();
+			sequenceChart();
 			if(curr_date < end_date) {
 				curr_date.setDate(curr_date.getDate() + 1);
 				$( "#slider-range" )
@@ -55,10 +60,14 @@ $("#play-button").click(function(d) {
 				$( "#slider-range" )
 					.slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
 				$( "#clock" ).text(start_date.toDateString() + " - " + end_date.toDateString());
+				
+				// 화면을 최신 데이터에 맞도록 맞춤
+				firstMap();
+				redraw_chart();
 			}
         }, 1000);
         playing = true;
-    } else {
+    } else {	// clear the timer and set the windows to the first state
         clearInterval(timer);
         $("#play-button").attr('src', 'play-circle.png');
         playing = false;
@@ -67,7 +76,7 @@ $("#play-button").click(function(d) {
     		curr_date = new Date(start_date);
     		$( "#slider-range" )
     			.slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
-    		$( "#clock" ).text("");
+    		$( "#clock" ).text(start_date.toDateString() + " - " + end_date.toDateString());
 
 		// 화면을 최신 데이터에 맞도록 맞춤
 		firstMap();
@@ -75,14 +84,13 @@ $("#play-button").click(function(d) {
     }
 });
 
+// map svg object
 var svg = d3.select("#map").append("svg")
     .attr("width", "100%")
-    //.attr("width", width)
-	.attr("height", height);
+    .attr("height", height);
 
 var map = svg.append("g")
 	.attr("id", "map");
-	//append 'g', with 'id' 'plants' - 공장 위치 시각화
 
 var projection = d3.geo.mercator()
 	.translate([width/2, height/2]);
@@ -90,45 +98,44 @@ var projection = d3.geo.mercator()
 var path = d3.geo.path().projection(projection);
 
 var map_path = "json/" + province_name + "-topo.json";
-// var map_path = "json/Seoul-topo2.json";
-//console.log(map_path);
 
+// control projection location with the data
 d3.csv("csv/projection_data.csv", function(data) {
   var projection_data = {};
   data.forEach(function(d) {
     projection_data[d.province] = d;
   });
 
+  // draw map with topo json file
   d3.json(map_path, function(error, data) {
     projection.scale(projection_data[province_name].scale)
     	.center([projection_data[province_name].center_x, projection_data[province_name].center_y]);
 
   	var features = topojson.feature(data, data.objects["TL_SCCO_SIG_crs84-m2s"]).features;
 
+	// get dust data to color the map
   	d3.csv("csv/" + province_name + "_" + pm + ".csv", function(data) {
   		var rateById = {};
   		data.forEach(function(d) {
-  			// console.log(d);
   			rateById[d.gungu] = +d.value;
   		});
 
   		map.selectAll("path")
   	    .data(features)
   	  .enter().append("path")
-  	  //	.attr("transform", function(d){ return "translate("+path.centroid(d)+")"; })
   	  	.attr("dy", ".35em")
   		.attr("d", path)
   		.attr("class", "municipality-label")
   		.text(function(d){ return d.properties.SIG_KOR_NM;})
   		.style("fill", function(d) {
-  			//console.log(d.properties.SIG_KOR_NM + ":" +rateById[d.properties.SIG_KOR_NM]);
             return getcolor(rateById[d.properties.SIG_KOR_NM]);
           })
   		.on("mouseenter", mymouseenter)
   		.on("mouseleave", mymouseleave)
-      .on("click", myclick);
+		.on("click", myclick);
   	})
 
+	// 화력 발전소 데이터를 사용하여 지도 위에 위치를 표시한다
     d3.csv("csv/electric.csv", function(data) {
 	  var elec = [];
       data.forEach(function(d) {
@@ -149,6 +156,7 @@ d3.csv("csv/projection_data.csv", function(data) {
   });
 });
 
+// add legend to the map (화력발전소, 풍향)
 var legend = svg.append("g")
     .attr("class", "legend")
     .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
@@ -166,7 +174,7 @@ var legend = svg.append("g")
       .style("text-anchor", "end")
       .text("화력 발전소");
 
-
+// 미세먼지 색상 기준
 var ref = d3.select("#refer").append("svg")
 	.attr("width", "100%")
 	.attr("height", height);
@@ -239,6 +247,7 @@ function getCookie(c_name) {
 	}
 }
 
+// decide colors according to dust density
 function getcolor(val) {
 	if(val >= 151) return "#d7191c";
 	else if(val < 151 && val >= 81) return "#fdae61";
@@ -247,12 +256,12 @@ function getcolor(val) {
 	else return "#FFF";
 }
 
+// change map coloring according to pm mode
 function pm_switch(chbx) {
   if (chbx.checked == true)
     pm = "pm25";
   else
     pm = "pm10";
- // console.log(pm);
 
   d3.json(map_path, function(error, data) {
   	var features = topojson.feature(data, data.objects["TL_SCCO_SIG_crs84-m2s"]).features;
@@ -272,6 +281,7 @@ function pm_switch(chbx) {
   });
 }
 
+// map mouse enter event: show detail information
 function mymouseenter(d) {
 	var x, y;
 	var text;
@@ -330,6 +340,7 @@ function mymouseleave(d) {
 	$(".mouse-enter").remove();
 }
 
+// mouse enter event for 화력발전소
 function elecmouseenter(d) {
 	map.append("text")
 		.attr("x", projection([d.lon, d.lat])[0])
@@ -343,6 +354,8 @@ function elecmouseleave(d) {
 	$("#elec-mouse-enter").remove();
 }
 
+// map click event: move to the detail page: 
+// should stop the animation and change chart data
 function myclick(d) {
 	var x, y, k;
 	var text;
@@ -385,6 +398,7 @@ function myclick(d) {
 	// $("#zoom-in").text(text);
 }
 
+// get past data after the page has loaded
 function getData() {
 	d3.csv("csv/TS_DLL_AVG.csv", function(data) {
 		data.forEach(function(d) {
@@ -408,6 +422,7 @@ function getData() {
 	});
 }
 
+// change date format to yyyymmdd
 Date.prototype.yyyymmdd = function() {
   var mm = this.getMonth() + 1;
   var dd = this.getDate();
@@ -418,6 +433,7 @@ Date.prototype.yyyymmdd = function() {
          ].join('');
 };
 
+// sequence map (animation): change color, wind arrow according to the current date
 function sequenceMap() {
 	var result = $.grep(attributeArray, function(e){
 		var date = curr_date.yyyymmdd();
@@ -441,6 +457,7 @@ function sequenceMap() {
 			});
 }
 
+// 화면을 최신 데이터에 기반하여 처음으로 돌려놓는다(after the animation)
 function firstMap() {
 	d3.csv("csv/" + province_name + "_" + pm + ".csv", function(data) {
 		var rateById = {};
