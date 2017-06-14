@@ -5,13 +5,13 @@ var svg_width = 600, svg_height = 300,
     province_data = [];
 
 var svg = d3.select("#chart").append("svg")
-    //.attr("width", svg_width)
-    .attr("width", "100%")
-    .attr("height", svg_height);
+    .attr("width", svg_width)
+    // .attr("width", "100%")
+    .attr("height", svg_height)
 
 var chart = svg.append("g")
           .attr("id", "chart")
-          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
 var parseTime = d3.time.format("%Y%m%d").parse;
 
@@ -52,27 +52,6 @@ d3.csv("csv/TS_DL_AVG.csv", function(data) {
     d3.max(province_data, function(d){return d.a_pm25;})
   ]);
 
-  chart.append("g")
-      .attr("class", "axis axis--y")
-      .call(d3.svg.axis().scale(y1).orient('left'))
-    .append("text")
-      .attr("transform", "translate(-40, -30)")
-      .attr("y", 6)
-      .attr("dy", "0.68em")
-      .attr("fill", "#000")
-      .text("PM10");
-
-  chart.append("g")
-      .attr("transform", "translate(" + width + ", 0)")
-      .attr("class", "axis axis--y2")
-      .call(d3.svg.axis().scale(y2).orient('right'))
-    .append("text")
-      .attr("transform", "translate(0, -30)")
-      .attr("y", 6)
-      .attr("dy", "0.68em")
-      .attr("fill", "#000")
-      .text("PM2.5");
-
   var legend = chart.append('g')
     .attr('class', 'legend');
 
@@ -111,6 +90,39 @@ d3.csv("csv/TS_DL_AVG.csv", function(data) {
     d3.max(province_data, function(d) { return d.date; })
   ]);
 
+  chart.append("path")
+    .attr("class", "line1 line")
+    .attr("d", line1(province_data))
+    .style("stroke", "#0f0")
+    .attr("clip-path", "url(#clip)");
+
+  chart.append("path")
+    .attr("class", "line2 line")
+    .attr("d", line2(province_data))
+    .style("stroke", "#f00")
+    .attr("clip-path", "url(#clip)");
+
+  chart.append("g")
+      .attr("class", "axis axis--y")
+      .call(d3.svg.axis().scale(y1).orient('left'))
+    .append("text")
+      .attr("transform", "translate(-40, -30)")
+      .attr("y", 6)
+      .attr("dy", "0.71em")
+      .attr("fill", "#000")
+      .text("PM10");
+
+  chart.append("g")
+      .attr("transform", "translate(" + width + ", 0)")
+      .attr("class", "axis axis--y2")
+      .call(d3.svg.axis().scale(y2).orient('right'))
+    .append("text")
+      .attr("transform", "translate(0, -30)")
+      .attr("y", 6)
+      .attr("dy", "0.71em")
+      .attr("fill", "#000")
+      .text("PM2.5");
+
   chart.append("g")
       .attr("class", "axis axis--x")
       .attr("transform", "translate(0," + height + ")")
@@ -121,17 +133,98 @@ d3.csv("csv/TS_DL_AVG.csv", function(data) {
         .attr("transform", "rotate(90)")
         .style("text-anchor", "start");
 
-  chart.append("path")
-    .attr("class", "line1")
-    .attr("d", line1(province_data))
-    .style("stroke", "#0f0")
-    .attr("clip-path", "url(#clip)");
+  var mouseG = chart.append("g")
+    .attr("class", "mouse-over-effects");
 
-  chart.append("path")
-    .attr("class", "line2")
-    .attr("d", line2(province_data))
-    .style("stroke", "#f00")
-    .attr("clip-path", "url(#clip)");
+  mouseG.append("path") // this is the black vertical line to follow mouse
+    .attr("class", "mouse-line")
+    .style("stroke", "black")
+    .style("stroke-width", "1px")
+    .style("opacity", "0");
+
+  var lines = document.getElementsByClassName('line');
+
+  var line_type = ["pm10", "pm2.5"];
+
+  var mousePerLine = mouseG.selectAll('.mouse-per-line')
+    .data(line_type)
+    .enter()
+    .append("g")
+    .attr("class", "mouse-per-line");
+
+  mousePerLine.append("circle")
+    .attr("r", 7)
+    .style("color", function(d, i) {
+      if (i == 0)
+        return '#0f0';
+      else
+        return '#f00';
+    })
+    .style("fill", "none")
+    .style("stroke-width", "1px")
+    .style("opacity", "0");
+
+  mousePerLine.append("text")
+    .attr("transform", "translate(10,3)");
+
+  mouseG.append('svg:rect') // append a rect to catch mouse movements on canvas
+    .attr('width', width) // can't catch mouse events on a g element
+    .attr('height', height)
+    .attr('fill', 'none')
+    .attr('pointer-events', 'all')
+    .on('mouseout', function() { // on mouse out hide line, circles and text
+      d3.select(".mouse-line")
+        .style("opacity", "0");
+      d3.selectAll(".mouse-per-line circle")
+        .style("opacity", "0");
+      d3.selectAll(".mouse-per-line text")
+        .style("opacity", "0");
+    })
+    .on('mouseover', function() { // on mouse in show line, circles and text
+      d3.select(".mouse-line")
+        .style("opacity", "1");
+      d3.selectAll(".mouse-per-line circle")
+        .style("opacity", "1");
+      d3.selectAll(".mouse-per-line text")
+        .style("opacity", "1");
+    })
+    .on('mousemove', function() { // mouse moving over canvas
+      var mouse = d3.mouse(this);
+      d3.select(".mouse-line")
+        .attr("d", function() {
+          var d = "M" + mouse[0] + "," + height;
+          d += " " + mouse[0] + "," + 0;
+          return d;
+        });
+
+      d3.selectAll(".mouse-per-line")
+        .attr("transform", function(d, i) {
+          var xDate = x.invert(mouse[0]);
+          var beginning = 0,
+              end = lines[i].getTotalLength(),
+              target = null;
+
+          while (true){
+            target = Math.floor((beginning + end) / 2);
+            pos = lines[i].getPointAtLength(target);
+            if ((target === end || target === beginning) && pos.x !== mouse[0]) {
+                break;
+            }
+            if (pos.x > mouse[0])      end = target;
+            else if (pos.x < mouse[0]) beginning = target;
+            else break; //position found
+          }
+
+          if(i == 0)
+            d3.select(this).select('text')
+              .text(y1.invert(pos.y).toFixed(2));
+          else
+            d3.select(this).select('text')
+              .text(y2.invert(pos.y).toFixed(2));
+
+          return "translate(" + mouse[0] + "," + pos.y +")";
+        });
+    });
 });
 
 function remake_province_data() {
@@ -237,89 +330,3 @@ function sequenceChart() {
   chart.select(".line2")
     .attr("d", line2(province_data));
 }
-
-//TODO: tooltip of line chart
-var mouseG = chart.append("g")
-  .attr("class", "mouse-over-effects");
-
-mouseG.append("path") // this is the black vertical line to follow mouse
-  .attr("class", "mouse-line")
-  .style("stroke", "black")
-  .style("stroke-width", "1px")
-  .style("opacity", "0");
-
-var lines = document.getElementsByClassName('line');
-
-var mousePerLine = mouseG.selectAll('.mouse-per-line')
-  .data(province_data)
-  .enter()
-  .append("g")
-  .attr("class", "mouse-per-line");
-
-mousePerLine.append("circle")
-  .attr("r", 7)
-  .style("fill", "none")
-  .style("stroke-width", "1px")
-  .style("opacity", "0");
-
-mousePerLine.append("text")
-  .attr("transform", "translate(10,3)");
-
-mouseG.append('svg:rect') // append a rect to catch mouse movements on canvas
-  .attr('width', width) // can't catch mouse events on a g element
-  .attr('height', height)
-  .attr('fill', 'none')
-  .attr('pointer-events', 'all')
-  .on('mouseout', function() { // on mouse out hide line, circles and text
-    d3.select(".mouse-line")
-      .style("opacity", "0");
-    d3.selectAll(".mouse-per-line circle")
-      .style("opacity", "0");
-    d3.selectAll(".mouse-per-line text")
-      .style("opacity", "0");
-  })
-  .on('mouseover', function() { // on mouse in show line, circles and text
-    d3.select(".mouse-line")
-      .style("opacity", "1");
-    d3.selectAll(".mouse-per-line circle")
-      .style("opacity", "1");
-    d3.selectAll(".mouse-per-line text")
-      .style("opacity", "1");
-  })
-  .on('mousemove', function() { // mouse moving over canvas
-    var mouse = d3.mouse(this);
-    d3.select(".mouse-line")
-      .attr("d", function() {
-        var d = "M" + mouse[0] + "," + height;
-        d += " " + mouse[0] + "," + 0;
-        return d;
-      });
-
-    d3.selectAll(".mouse-per-line")
-      .attr("transform", function(d, i) {
-        console.log(width/mouse[0])
-        var xDate = x.invert(mouse[0]),
-            bisect = d3.bisector(function(d) { return d.date; }).right;
-            idx = bisect(d.values, xDate);
-
-        var beginning = 0,
-            end = lines[i].getTotalLength(),
-            target = null;
-
-        while (true){
-          target = Math.floor((beginning + end) / 2);
-          pos = lines[i].getPointAtLength(target);
-          if ((target === end || target === beginning) && pos.x !== mouse[0]) {
-              break;
-          }
-          if (pos.x > mouse[0])      end = target;
-          else if (pos.x < mouse[0]) beginning = target;
-          else break; //position found
-        }
-
-        d3.select(this).select('text')
-          .text(y.invert(pos.y).toFixed(2));
-
-        return "translate(" + mouse[0] + "," + pos.y +")";
-      });
-  });
