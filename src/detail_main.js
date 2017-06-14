@@ -403,7 +403,6 @@ function getData() {
 	d3.csv("csv/TS_DLL_AVG.csv", function(data) {
 		data.forEach(function(d) {
 			if(province_name === d.LOC) {
-				// console.log(d);
 				attributeArray.push(d);
 			}
 		});
@@ -439,22 +438,20 @@ function sequenceMap() {
 		var date = curr_date.yyyymmdd();
 		return date === e["DATE1"];
 	});
-	//console.log(result);
-		map.selectAll("path")
-			.style("fill", function(d2) {
-				var val = $.grep(result, function(c) {
-					return c.LOC_1 === d2.properties.SIG_KOR_NM;
-				});
-				// console.log(val);
-				if(val.length > 0) {
-					if(pm === "pm10") {
-						// console.log(val[0].a_pm10);
-						return getcolor(val[0].a_pm10);
-					} else {
-						return getcolor(val[0].a_pm25);
-					}
-				}
+	
+	map.selectAll("path")
+		.style("fill", function(d2) {
+			var val = $.grep(result, function(c) {
+				return c.LOC_1 === d2.properties.SIG_KOR_NM;
 			});
+			if(val.length > 0) {
+				if(pm === "pm10") {
+					return getcolor(val[0].a_pm10);
+				} else {
+					return getcolor(val[0].a_pm25);
+				}
+			}
+		});
 }
 
 // 화면을 최신 데이터에 기반하여 처음으로 돌려놓는다(after the animation)
@@ -462,7 +459,6 @@ function firstMap() {
 	d3.csv("csv/" + province_name + "_" + pm + ".csv", function(data) {
 		var rateById = {};
   		data.forEach(function(d) {
-  			// console.log(d);
   			rateById[d.gungu] = +d.value;
   		});
 
