@@ -165,7 +165,7 @@ var legend = svg.append("g")
       .attr("dy", ".35em")
       .style("text-anchor", "end")
       .text("화력 발전소");
-/* 
+/*
 drawPlantInfo();
 function drawPlantInfo() {
 	console.log(elec.length);
@@ -175,7 +175,7 @@ function drawPlantInfo() {
 		// No data
 	}
 }
-*/  
+*/
 function getCookie(c_name) {
 	var i,x,y,ARRcookies=document.cookie.split(";");
 	for (i=0;i<ARRcookies.length;i++)
@@ -234,7 +234,6 @@ function mymouseenter(d) {
 		.attr("x", x)
 		.attr("y", y)
     .attr("dy", "0em")
-		.attr("font-size", "15px")
 		.attr("class", "mouse-enter")
 		.text(text);
 
@@ -253,24 +252,26 @@ function mymouseenter(d) {
   var pm10 = pm10_data[text];
   if(pm10 === -900)
     pm10 = "No data";
+  else
+    pm10 = pm10 + '(㎍/㎥)';
 
   var pm25 = pm25_data[text];
   if(pm25 === -900)
     pm25 = "No data";
+  else
+    pm25 = pm25 + '(㎍/㎥)';
 
 	map.append("text")
 		.attr("x", x)
 		.attr("y", y)
     .attr("dy", "1em")
-		.attr("font-size", "15px")
 		.attr("class", "mouse-enter")
-		.text('PM10: ' + pm10);
+		.text('PM10: ' + pm10 + '');
 
 	map.append("text")
 		.attr("x", x)
 		.attr("y", y)
     .attr("dy", "2em")
-		.attr("font-size", "15px")
 		.attr("class", "mouse-enter")
 		.text('PM2.5: ' + pm25);
 }
@@ -303,6 +304,7 @@ function myclick(d) {
 		centered = d;
 		sigungu = d.properties.SIG_KOR_NM;
 		$("#prov_name").text(kor_province + " - " + sigungu);
+    // $(".mouseenter").css('font-size', '20px');
 		// text = "zoom in " + d.properties.name;
 	} else {
 		x = width / 2;
@@ -311,6 +313,7 @@ function myclick(d) {
 		centered = null;
 		sigungu = "";
 		$("#prov_name").text(kor_province);
+    // $(".mouseenter").css('font-size', '20px');
 	}
 
   clearInterval(timer);

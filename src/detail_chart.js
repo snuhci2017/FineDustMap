@@ -79,6 +79,15 @@ d3.csv("csv/TS_DL_AVG.csv", function(data) {
       .attr('y', 50)
       .attr('transform', 'translate(15, 10)');
 
+  chart.append('g')
+    .attr('class', 'title')
+    .append('text')
+    .attr('x', width / 2)
+    .style("text-anchor", "middle")
+    .attr('y', -20)
+    .text('Line chart for prev data')
+    .style('font-size', '20px');
+
   chart.append("defs").append("clipPath")
       .attr("id", "clip")
         .append("rect")
@@ -103,14 +112,22 @@ d3.csv("csv/TS_DL_AVG.csv", function(data) {
     .attr("clip-path", "url(#clip)");
 
   chart.append("g")
-      .attr("class", "axis axis--y")
+      .attr("class", "axis axis--y1")
       .call(d3.svg.axis().scale(y1).orient('left'))
     .append("text")
       .attr("transform", "translate(-40, -30)")
       .attr("y", 6)
-      .attr("dy", "0.71em")
+      .attr("dy", "0em")
       .attr("fill", "#000")
       .text("PM10");
+
+  chart.select(".axis--y1")
+      .append("text")
+        .attr("transform", "translate(-40, -30)")
+        .attr("y", 6)
+        .attr("dy", "1em")
+        .attr("fill", "#000")
+      .text("(㎍/㎥)");
 
   chart.append("g")
       .attr("transform", "translate(" + width + ", 0)")
@@ -119,9 +136,17 @@ d3.csv("csv/TS_DL_AVG.csv", function(data) {
     .append("text")
       .attr("transform", "translate(0, -30)")
       .attr("y", 6)
-      .attr("dy", "0.71em")
+      .attr("dy", "0em")
       .attr("fill", "#000")
       .text("PM2.5");
+
+  chart.select(".axis--y2")
+      .append("text")
+        .attr("transform", "translate(0, -30)")
+        .attr("y", 6)
+        .attr("dy", "1em")
+        .attr("fill", "#000")
+      .text("(㎍/㎥)");
 
   chart.append("g")
       .attr("class", "axis axis--x")
@@ -153,15 +178,14 @@ d3.csv("csv/TS_DL_AVG.csv", function(data) {
     .attr("class", "mouse-per-line");
 
   mousePerLine.append("circle")
-    .attr("r", 7)
-    .style("color", function(d, i) {
+    .attr("r", 3)
+    .style("fill", function(d, i) {
       if (i == 0)
         return '#0f0';
       else
         return '#f00';
     })
-    .style("fill", "none")
-    .style("stroke-width", "1px")
+    .style("stroke-width", "2px")
     .style("opacity", "0");
 
   mousePerLine.append("text")
@@ -271,22 +295,10 @@ function redraw_chart() {
   ]);
 
   chart.select('.axis--y1')
-      .call(d3.svg.axis().scale(y1).orient('left'))
-    .append("text")
-      .attr("transform", "translate(-40, -30)")
-      .attr("y", 6)
-      .attr("dy", "0.68em")
-      .attr("fill", "#000")
-      .text("PM10");
+      .call(d3.svg.axis().scale(y1).orient('left'));
 
   chart.select('.axis--y2')
-      .call(d3.svg.axis().scale(y2).orient('right'))
-    .append("text")
-      .attr("transform", "translate(0, -30)")
-      .attr("y", 6)
-      .attr("dy", "0.68em")
-      .attr("fill", "#000")
-      .text("PM2.5");
+      .call(d3.svg.axis().scale(y2).orient('right'));
 
   x.domain([
     d3.time.month.offset(d3.max(province_data, function(d) { return d.date; }), -3),
