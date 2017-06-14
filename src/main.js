@@ -293,7 +293,7 @@ function mymouseenter(d) {
 		.attr("font-size", "15px")
 		.attr("class", "mouse-enter")
 		// .text('PM10: ' + val[0].a_pm10);
-		.text('PM10: ' + pm10_data[text]);
+		.text('PM10: ' + pm10_data[text] + '(㎍/㎥)');
 
 	map.append("text")
 		.attr("x", x)
@@ -301,7 +301,7 @@ function mymouseenter(d) {
     .attr("dy", "2em")
 		.attr("font-size", "15px")
 		.attr("class", "mouse-enter")
-		.text('PM2.5: ' + pm25_data[text]);
+		.text('PM2.5: ' + pm25_data[text] + '(㎍/㎥)');
 }
 
 function mymouseleave(d) {
@@ -342,8 +342,8 @@ function pm_switch(chbx) {
   else
     pm = 'pm10';
 
-	map.selectAll("path")
-	  .style("fill", function(d) {
+  map.selectAll("g").selectAll("path")
+    .style("fill", function(d) {
       if(pm === 'pm10')
         return getcolor(pm10_data[d.properties.name]);
       else
@@ -409,7 +409,7 @@ function sequenceMap() {
 		var date = curr_date.yyyymmdd();
 		return date === e["DATE1"];
 	});
-	
+
 	//result.forEach(function(d1) {
 		map.selectAll("g").selectAll("path")
 			.style("fill", function(d2) {

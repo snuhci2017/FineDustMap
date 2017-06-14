@@ -165,19 +165,20 @@ var legend = svg.append("g")
       .attr("dy", ".35em")
       .style("text-anchor", "end")
       .text("화력 발전소");
-	  
+
+
 var ref = d3.select("#refer").append("svg")
 	.attr("width", "100%")
 	.attr("height", height);
 
-var ref_data = [{"status":"좋음", "color":"#1a9641", "min":0, "max":31}, 
-				{"status":"보통", "color":"#a6d96a", "min":31, "max":81}, 
-				{"status":"나쁨", "color":"#fdae61", "min":81, "max":151}, 
+var ref_data = [{"status":"좋음", "color":"#1a9641", "min":0, "max":31},
+				{"status":"보통", "color":"#a6d96a", "min":31, "max":81},
+				{"status":"나쁨", "color":"#fdae61", "min":81, "max":151},
 				{"status":"매우 나쁨", "color":"#d7191c", "min":151, "max":-1}];
 ref.append("g")
 	.attr("id", "ref")
 	.attr("transform", "translate(100,20)");
-	
+
 ref.selectAll("rect")
 	.data(ref_data)
 	.enter().append("rect")
@@ -185,10 +186,10 @@ ref.selectAll("rect")
 	.attr("y", 30)
 	.attr("width", 40)
 	.attr("height", 40)
-	.style("fill", function(d, i) { 
-		return d.color; 
+	.style("fill", function(d, i) {
+		return d.color;
 	});
-	
+
 ref.selectAll("text")
 	.data(ref_data)
 	.enter().append("text")
@@ -196,15 +197,15 @@ ref.selectAll("text")
 	.attr("y", 80)
 	.attr("dy", ".72em")
 	.style("text-anchor", "end")
-	.text(function(d, i) { 
+	.text(function(d, i) {
 		var st;
 		if(d.max !== -1)
 			st = d.status + " : " + d.min + "~" + d.max;
 		else
 			st = d.status + " : " + d.min + "~"
-		return st; 
+		return st;
 	});
-	
+
 /*
 drawPlantInfo();
 function drawPlantInfo() {
@@ -283,7 +284,6 @@ function mymouseenter(d) {
 		.attr("x", x)
 		.attr("y", y)
     .attr("dy", "0em")
-		.attr("font-size", "15px")
 		.attr("class", "mouse-enter")
 		.text(text);
 
@@ -302,24 +302,26 @@ function mymouseenter(d) {
   var pm10 = pm10_data[text];
   if(pm10 === -900)
     pm10 = "No data";
+  else
+    pm10 = pm10 + '(㎍/㎥)';
 
   var pm25 = pm25_data[text];
   if(pm25 === -900)
     pm25 = "No data";
+  else
+    pm25 = pm25 + '(㎍/㎥)';
 
 	map.append("text")
 		.attr("x", x)
 		.attr("y", y)
     .attr("dy", "1em")
-		.attr("font-size", "15px")
 		.attr("class", "mouse-enter")
-		.text('PM10: ' + pm10);
+		.text('PM10: ' + pm10 + '');
 
 	map.append("text")
 		.attr("x", x)
 		.attr("y", y)
     .attr("dy", "2em")
-		.attr("font-size", "15px")
 		.attr("class", "mouse-enter")
 		.text('PM2.5: ' + pm25);
 }
@@ -352,6 +354,7 @@ function myclick(d) {
 		centered = d;
 		sigungu = d.properties.SIG_KOR_NM;
 		$("#prov_name").text(kor_province + " - " + sigungu);
+    // $(".mouseenter").css('font-size', '20px');
 		// text = "zoom in " + d.properties.name;
 	} else {
 		x = width / 2;
@@ -360,6 +363,7 @@ function myclick(d) {
 		centered = null;
 		sigungu = "";
 		$("#prov_name").text(kor_province);
+    // $(".mouseenter").css('font-size', '20px');
 	}
 
   clearInterval(timer);
