@@ -10,7 +10,6 @@ var attributeArray = [];
 var curr_date = new Date(start_date);
 var timer;
 var sigungu = "";
-var elec = [];
 
 var pm10_data = {}, pm25_data = {};
 
@@ -131,6 +130,7 @@ d3.csv("csv/projection_data.csv", function(data) {
   	})
 
     d3.csv("csv/electric.csv", function(data) {
+	  var elec = [];
       data.forEach(function(d) {
         if(d.province === province_name)
           elec.push(d);
@@ -204,17 +204,27 @@ ref.selectAll("text")
 			st = d.status + " : " + d.min + "~"
 		return st; 
 	});
-/* 
+	
+/*
 drawPlantInfo();
 function drawPlantInfo() {
-	console.log(elec.length);
-	if(elec.length !== 0) {
-		$('#plant').append("<p>draw please" + "</p>");
-	} else {
-		// No data
-	}
+	d3.csv("csv/electric.csv", function(data) {
+		var elec = [];
+		data.forEach(function(d) {
+			if(d.province === province_name) {
+				var name_div = $('<div>'+d.name+'</div>')
+					.prop('class', "plant_detail");
+				$('#plant').append(name_div);
+			}
+		});
+		  
+		if(elec.length !== 0) {
+			$('#plant').append("<div class='plant_detail'>발전소가 없습니다" + "</div>");
+		}
+	});
 }
-*/  
+*/
+
 function getCookie(c_name) {
 	var i,x,y,ARRcookies=document.cookie.split(";");
 	for (i=0;i<ARRcookies.length;i++)

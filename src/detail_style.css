@@ -65,6 +65,7 @@ div .player_container {
   width: 80%;
   display: block;
   float: left;
+  padding-bottom: 30px;
 }
 
 #clock {
@@ -176,3 +177,13 @@ div.ui-slider-range.ui-widget-header {
     bottom:2.9rem;
     white-space:nowrap;
 }
+/*
+.plant {
+  width: 80%;
+  height: 40px;
+  display: block;
+  font-size: 20px;
+  margin-top: 30px;
+  padding-top: 30px;
+}
+*/
