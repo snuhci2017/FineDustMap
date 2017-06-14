@@ -310,13 +310,13 @@ function mymouseenter(d) {
   });
 
   var pm10 = pm10_data[text];
-  if(pm10 === -900)
+  if(typeof(pm10) === "undefined" || pm10 === -900)
     pm10 = "No data";
   else
     pm10 = pm10 + '(㎍/㎥)';
 
   var pm25 = pm25_data[text];
-  if(pm25 === -900)
+  if(typeof(pm10) === "undefined" || pm25 === -900)
     pm25 = "No data";
   else
     pm25 = pm25 + '(㎍/㎥)';

@@ -57,7 +57,7 @@ $("#play-button").click(function(d) {
 				$( "#slider-range" )
 					.slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
 				$( "#clock" ).text(start_date.toDateString() + " - " + end_date.toDateString());
-				
+
 				firstMap();
 			}
         }, 1000);
@@ -217,12 +217,12 @@ var legend = svg.append("g")
 var ref = svg.append("g")
 	.attr("id", "ref")
 	.attr("transform", "translate(100,20)");
-	
-var ref_data = [{"status":"좋음", "color":"#1a9641", "min":0, "max":31}, 
-				{"status":"보통", "color":"#a6d96a", "min":31, "max":81}, 
-				{"status":"나쁨", "color":"#fdae61", "min":81, "max":151}, 
+
+var ref_data = [{"status":"좋음", "color":"#1a9641", "min":0, "max":31},
+				{"status":"보통", "color":"#a6d96a", "min":31, "max":81},
+				{"status":"나쁨", "color":"#fdae61", "min":81, "max":151},
 				{"status":"매우 나쁨", "color":"#d7191c", "min":151, "max":-1}];
-	
+
 ref.selectAll("rect")
 	.data(ref_data)
 	.enter().append("rect")
@@ -230,10 +230,10 @@ ref.selectAll("rect")
 	.attr("y", function(d, i) { return i * 40; })
 	.attr("width", 40)
 	.attr("height", 40)
-	.style("fill", function(d, i) { 
-		return d.color; 
+	.style("fill", function(d, i) {
+		return d.color;
 	});
-	
+
 ref.selectAll("text")
 	.data(ref_data)
 	.enter().append("text")
@@ -242,15 +242,15 @@ ref.selectAll("text")
 	.attr("dy", ".60em")
 	.style("text-anchor", "start")
 	.style("font-size", "18px")
-	.text(function(d, i) { 
+	.text(function(d, i) {
 		var st;
 		if(d.max !== -1)
 			st = d.status + " : " + d.min + "~" + d.max;
 		else
 			st = d.status + " : " + d.min + "~"
-		return st; 
+		return st;
 	});
-	
+
 // decide colors according to dust density
 function getcolor(val) {
 	if(val >= 151) return "#d7191c";
@@ -294,6 +294,18 @@ function mymouseenter(d) {
     return c.LOC === d.properties.name_eng;
   });
 
+  var pm10 = pm10_data[text];
+  if(typeof(pm10) === "undefined" || pm10 === -900)
+    pm10 = "No data";
+  else
+    pm10 = pm10 + '(㎍/㎥)';
+
+  var pm25 = pm25_data[text];
+  if(typeof(pm10) === "undefined" || pm25 === -900)
+    pm25 = "No data";
+  else
+    pm25 = pm25 + '(㎍/㎥)';
+
 	map.append("text")
 		.attr("x", x)
 		.attr("y", y)
@@ -301,7 +313,7 @@ function mymouseenter(d) {
 		.attr("font-size", "15px")
 		.attr("class", "mouse-enter")
 		// .text('PM10: ' + val[0].a_pm10);
-		.text('PM10: ' + pm10_data[text] + '(㎍/㎥)');
+		.text('PM10: ' + pm10);
 
 	map.append("text")
 		.attr("x", x)
@@ -309,7 +321,7 @@ function mymouseenter(d) {
     .attr("dy", "2em")
 		.attr("font-size", "15px")
 		.attr("class", "mouse-enter")
-		.text('PM2.5: ' + pm25_data[text] + '(㎍/㎥)');
+		.text('PM2.5: ' + pm25);
 }
 
 function mymouseleave(d) {
