@@ -1,4 +1,4 @@
-var svg_width = 700, svg_height = 500,
+var svg_width = 600, svg_height = 300,
     margin = {top: 40, right: 150, bottom: 100, left: 50},
     width = svg_width - margin.left - margin.right,
     height = svg_height - margin.top - margin.bottom,
@@ -275,7 +275,7 @@ function redraw_chart() {
     .append("text")
       .attr("transform", "translate(-40, -30)")
       .attr("y", 6)
-      .attr("dy", "0.71em")
+      .attr("dy", "0.68em")
       .attr("fill", "#000")
       .text("PM10");
 
@@ -284,7 +284,7 @@ function redraw_chart() {
     .append("text")
       .attr("transform", "translate(0, -30)")
       .attr("y", 6)
-      .attr("dy", "0.71em")
+      .attr("dy", "0.68em")
       .attr("fill", "#000")
       .text("PM2.5");
 

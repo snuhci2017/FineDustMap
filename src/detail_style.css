@@ -17,18 +17,20 @@ svg .municipality-label {
 
 svg .municipality-label:hover {
   fill: #fff;
-  font-size: 12px;
+  font-size: 20px;
   font-weight: 300;
   text-anchor: middle;
 }
 
 #prov_name {
-  font-size: 60px;
+  font-size: 45px;
   display: block;
   width: 50%;
   height: 70px;
   margin-left: auto;
   margin-right: auto;
+  text-align: center;
+  margin-bottom: 30px;
 }
 
 .notify {
@@ -39,7 +41,7 @@ svg .municipality-label:hover {
 
 div .map-container {
   width: 50%;
-  height: 500px;
+  height: 350px;
   /*display: block;*/
   display: inline;
   float: left;
@@ -47,12 +49,16 @@ div .map-container {
 
 div .dust-chart {
   width: 50%;
-  height: 500px;
-  /*display: block;*/
+  height: 350px;
   display: inline;
   float: right;
+  text-align: center;
 }
-
+/*
+#plant {
+  text-align: center;
+}
+*/
 div .player_container {
   width: 80%;
   display: block;
@@ -60,7 +66,7 @@ div .player_container {
 }
 
 #clock {
-  font-size: 20px;
+  font-size: 15px;
   vertical-align: top;
 }
 

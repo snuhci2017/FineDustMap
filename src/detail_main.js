@@ -1,5 +1,5 @@
-var width = 960,
-    height = 500,
+var width = 800,
+    height = 400,
 	centered;
 
 var playing = false;
@@ -10,19 +10,16 @@ var attributeArray = [];
 var curr_date = new Date(start_date);
 var timer;
 var sigungu = "";
+var elec = [];
 
 var pm10_data = {}, pm25_data = {};
 
 pm = getCookie("pm");
 
 var province_name = getCookie("province");
-$("#prov_name").text(province_name);
+var kor_province = getCookie("kor_nm");
+$("#prov_name").text(kor_province);
 
-var tooltip = $('<div id="tooltip" />').css({
-    position: 'absolute',
-    top: -25,
-    left: -10
-}).hide();
 $( function() {
 		$( "#slider-range" ).slider({
 			range: true,
@@ -35,10 +32,6 @@ $( function() {
 				curr_date = new Date(start_date);
 				$( "#clock" ).text(start_date.toDateString() + " - " + end_date.toDateString());
 			}
-		}).find(".ui-slider-handle").append(tooltip).hover(function() {
-			tooltip.show();
-		}, function() {
-			tooltip.hide();
 		});
 });
 
@@ -52,7 +45,7 @@ $("#play-button").click(function(d) {
 				curr_date.setDate(curr_date.getDate() + 1);
 				$( "#slider-range" )
 					.slider('values', [curr_date.getTime()/1000, end_date.getTime()/1000]);
-				$( "#clock" ).text(curr_date + " - " + end_date);
+				$( "#clock" ).text(curr_date.toDateString() + " - " + end_date.toDateString());
 			} else {
 				clearInterval(timer);
 				$("#play-button").attr('src', 'play-circle.png');
@@ -62,7 +55,7 @@ $("#play-button").click(function(d) {
 				curr_date = new Date(start_date);
 				$( "#slider-range" )
 					.slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
-				$( "#clock" ).text(start_date + " - " + end_date);
+				$( "#clock" ).text(start_date.toDateString() + " - " + end_date.toDateString());
 			}
         }, 1000);
         playing = true;
@@ -78,8 +71,8 @@ $("#play-button").click(function(d) {
     		$( "#clock" ).text("");
 
 		// 화면을 최신 데이터에 맞도록 맞춤
-        redraw_chart();
-		    firstMap()
+		firstMap();
+		redraw_chart();
     }
 });
 
@@ -138,7 +131,6 @@ d3.csv("csv/projection_data.csv", function(data) {
   	})
 
     d3.csv("csv/electric.csv", function(data) {
-      var elec = [];
       data.forEach(function(d) {
         if(d.province === province_name)
           elec.push(d);
@@ -173,7 +165,17 @@ var legend = svg.append("g")
       .attr("dy", ".35em")
       .style("text-anchor", "end")
       .text("화력 발전소");
-
+/* 
+drawPlantInfo();
+function drawPlantInfo() {
+	console.log(elec.length);
+	if(elec.length !== 0) {
+		$('#plant').append("<p>draw please" + "</p>");
+	} else {
+		// No data
+	}
+}
+*/  
 function getCookie(c_name) {
 	var i,x,y,ARRcookies=document.cookie.split(";");
 	for (i=0;i<ARRcookies.length;i++)
@@ -299,7 +301,8 @@ function myclick(d) {
 		y = centroid[1];
 		k = 4;
 		centered = d;
-    sigungu = d.properties.SIG_KOR_NM;
+		sigungu = d.properties.SIG_KOR_NM;
+		$("#prov_name").text(kor_province + " - " + sigungu);
 		// text = "zoom in " + d.properties.name;
 	} else {
 		x = width / 2;
@@ -307,6 +310,7 @@ function myclick(d) {
 		k = 1;
 		centered = null;
 		sigungu = "";
+		$("#prov_name").text(kor_province);
 	}
 
   clearInterval(timer);
@@ -317,7 +321,7 @@ function myclick(d) {
   curr_date = new Date(start_date);
   $( "#slider-range" )
   .slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
-  $( "#clock" ).text(start_date + " - " + end_date);
+  $( "#clock" ).text(start_date.toDateString() + " - " + end_date.toDateString());
 
   remake_province_data();
 

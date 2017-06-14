@@ -43,7 +43,7 @@ $("#play-button").click(function(d) {
 				curr_date.setDate(curr_date.getDate() + 1);
 				$( "#slider-range" )
 					.slider('values', [curr_date.getTime()/1000, end_date.getTime()/1000]);
-				$( "#clock" ).text(curr_date + " - " + end_date);
+				$( "#clock" ).text(curr_date.toDateString() + " - " + end_date.toDateString());
 			} else {
 				clearInterval(timer);
 				$("#play-button").attr('src', 'play-circle.png');
@@ -53,7 +53,7 @@ $("#play-button").click(function(d) {
 				curr_date = new Date(start_date);
 				$( "#slider-range" )
 					.slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
-				$( "#clock" ).text(start_date + " - " + end_date);
+				$( "#clock" ).text(start_date.toDateString() + " - " + end_date.toDateString());
 			}
 
         }, 1000);
@@ -105,8 +105,8 @@ map.append("svg:defs").append("svg:marker")
     .style("fill", "blue");
 
 var projection = d3.geo.mercator()
-    .scale(5500)
-	.center([129,36])
+    .scale(4000)
+	.center([129.1,34.59])
 	.translate([width/2, height/2]);
 
 var path = d3.geo.path().projection(projection);
@@ -120,7 +120,8 @@ d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
 			rateById[d.province] = +d.value;
 		});
 
-  	map.selectAll("path")
+  	map.append("g")
+	  .selectAll("path")
       .data(features)
     .enter().append("path")
     	.attr("dy", ".35em")
@@ -181,28 +182,28 @@ var legend = svg.append("g")
     .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
 
   legend.append("circle")
-      .attr("cx", width - 10)
+      .attr("cx", width - 60)
 	  .attr("cy", 40)
       .attr("r", 4)
 	  .style("fill", "#f00");
 
   legend.append("text")
-      .attr("x", width - 20)
+      .attr("x", width - 70)
 	  .attr("y", 40)
       .attr("dy", ".35em")
       .style("text-anchor", "end")
       .text("화력 발전소");
 
   legend.append("line")
-    .attr("x1", width - 10)
+    .attr("x1", width - 60)
 	.attr("y1", 68)
-	.attr("x2", width - 10)
+	.attr("x2", width - 60)
 	.attr("y2", 54)
 	.style("stroke", "blue")
 	.attr("marker-end", "url(#arrow-header)");
 
   legend.append("text")
-    .attr("x", width - 20)
+    .attr("x", width - 70)
 	.attr("y", 60)
 	.attr("dy", ".35em")
 	.style("text-anchor", "end")
@@ -217,7 +218,7 @@ function getcolor(val) {
 }
 
 function myclick(d) {
-	detailpage(d.properties.name_eng, pm);
+	detailpage(d.properties.name_eng, pm, d.properties.name);
 }
 
 function mymouseenter(d) {
@@ -283,9 +284,10 @@ function elecmouseleave(d) {
 	$("#elec-mouse-enter").remove();
 }
 
-function detailpage(index1, index2) {
+function detailpage(index1, index2, index3) {
 	setCookie("province", index1, 0.5);
 	setCookie("pm", index2, 0.5);
+	setCookie("kor_nm", index3, 0.5);
 	p = "detail.html";
 	window.location.href=p;
 }
@@ -370,9 +372,9 @@ function sequenceMap() {
 		var date = curr_date.yyyymmdd();
 		return date === e["DATE1"];
 	});
-
+	
 	//result.forEach(function(d1) {
-		map.selectAll("path")
+		map.selectAll("g").selectAll("path")
 			.style("fill", function(d2) {
 				var val = $.grep(result, function(c) {
 					return c.LOC === d2.properties.name_eng;
@@ -436,7 +438,7 @@ function firstMap() {
 		data.forEach(function(d) {
 			rateById[d.province] = +d.value;
 		});
-		map.selectAll("path")
+		map.selectAll("g").selectAll("path")
 			.style("fill", function(d) {
 				return getcolor(rateById[d.properties.name]);
 			});

@@ -28,29 +28,42 @@ svg #map text {
   font-size: 20px;
   text-anchor: middle;
 }
-/*
-div #map {
-  display: inline-block;
-  position: center;
+
+#proj_name {
+  font-size: 40px;
+  display: block;
+  width: 50%;
+  height: 50px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  margin-bottom: 20px;
 }
-*/
 
 div.centre
 {
   text-align: left;
   width: 704px;
-  height: 704px;
+  height: 453px;
   /*display: inline-block;*/
   display: block;
   margin-left: auto;
   margin-right: auto;
 }
 
-div.control
-{
+div.control {
   text-align: left;
   width: 60%;
   height: 40px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.control-switch {
+  text-align: left;
+  width: 70%;
+  height: 30px;
   display: block;
   margin-left: auto;
   margin-right: auto;
