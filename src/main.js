@@ -1,5 +1,5 @@
-var width = 960,
-    height = 700,
+var width = 1000,
+    height = 480,
     centered;
 
 var playing = false;
@@ -106,7 +106,7 @@ map.append("svg:defs").append("svg:marker")
 
 var projection = d3.geo.mercator()
     .scale(4000)
-	.center([129.1,34.59])
+	.center([127.3,35.89])
 	.translate([width/2, height/2]);
 
 var path = d3.geo.path().projection(projection);
@@ -209,6 +209,43 @@ var legend = svg.append("g")
 	.style("text-anchor", "end")
 	.text("풍향");
 
+var ref = svg.append("g")
+	.attr("id", "ref")
+	.attr("transform", "translate(100,20)");
+	
+var ref_data = [{"status":"좋음", "color":"#1a9641", "min":0, "max":31}, 
+				{"status":"보통", "color":"#a6d96a", "min":31, "max":81}, 
+				{"status":"나쁨", "color":"#fdae61", "min":81, "max":151}, 
+				{"status":"매우 나쁨", "color":"#d7191c", "min":151, "max":-1}];
+	
+ref.selectAll("rect")
+	.data(ref_data)
+	.enter().append("rect")
+	.attr("x", 0)
+	.attr("y", function(d, i) { return i * 40; })
+	.attr("width", 40)
+	.attr("height", 40)
+	.style("fill", function(d, i) { 
+		return d.color; 
+	});
+	
+ref.selectAll("text")
+	.data(ref_data)
+	.enter().append("text")
+	.attr("x", 60)
+	.attr("y", function(d, i) { return i * 43 + 8; })
+	.attr("dy", ".60em")
+	.style("text-anchor", "start")
+	.style("font-size", "18px")
+	.text(function(d, i) { 
+		var st;
+		if(d.max !== -1)
+			st = d.status + " : " + d.min + "~" + d.max;
+		else
+			st = d.status + " : " + d.min + "~"
+		return st; 
+	});
+	
 function getcolor(val) {
 	if(val >= 151) return "#d7191c";
 	else if(val < 151 && val >= 81) return "#fdae61";

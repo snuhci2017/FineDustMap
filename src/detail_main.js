@@ -166,6 +166,46 @@ var legend = svg.append("g")
       .style("text-anchor", "end")
       .text("화력 발전소");
 /*
+
+var ref = d3.select("#refer").append("svg")
+	.attr("width", "100%")
+	.attr("height", height);
+
+var ref_data = [{"status":"좋음", "color":"#1a9641", "min":0, "max":31},
+				{"status":"보통", "color":"#a6d96a", "min":31, "max":81},
+				{"status":"나쁨", "color":"#fdae61", "min":81, "max":151},
+				{"status":"매우 나쁨", "color":"#d7191c", "min":151, "max":-1}];
+ref.append("g")
+	.attr("id", "ref")
+	.attr("transform", "translate(100,20)");
+
+ref.selectAll("rect")
+	.data(ref_data)
+	.enter().append("rect")
+	.attr("x", function(d, i) { return (i+1) * 115; })
+	.attr("y", 30)
+	.attr("width", 40)
+	.attr("height", 40)
+	.style("fill", function(d, i) {
+		return d.color;
+	});
+
+ref.selectAll("text")
+	.data(ref_data)
+	.enter().append("text")
+	.attr("x", function(d, i) { return (i+1) * 145; })
+	.attr("y", 80)
+	.attr("dy", ".72em")
+	.style("text-anchor", "end")
+	.text(function(d, i) {
+		var st;
+		if(d.max !== -1)
+			st = d.status + " : " + d.min + "~" + d.max;
+		else
+			st = d.status + " : " + d.min + "~"
+		return st;
+	});
+/*
 drawPlantInfo();
 function drawPlantInfo() {
 	console.log(elec.length);
