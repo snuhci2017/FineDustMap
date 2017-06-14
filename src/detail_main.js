@@ -316,7 +316,7 @@ function mymouseenter(d) {
     pm10 = pm10 + '(㎍/㎥)';
 
   var pm25 = pm25_data[text];
-  if(typeof(pm10) === "undefined" || pm25 === -900)
+  if(typeof(pm25) === "undefined" || pm25 === -900)
     pm25 = "No data";
   else
     pm25 = pm25 + '(㎍/㎥)';
