@@ -2,40 +2,43 @@ var width = 1000,
     height = 480,
     centered;
 
-var playing = false;
-var pm = "pm10";
-var start_date = new Date("2016-01-01");
-var end_date = new Date("2016-12-31");
-var attributeArray = [];
-var windArray = [];
-var curr_date = new Date(start_date);
-var timer;
+var playing = false;	// true: animation is playing
+var pm = "pm10";		// pm mode: pm10 or pm2.5
+var start_date = new Date("2016-01-01");	// slider start date
+var end_date = new Date("2016-12-31");		// slider end date
+var attributeArray = [];					// array that stores prev dust data
+var windArray = [];							// array that stores prev wind data
+var curr_date = new Date(start_date);		// current playing date in the animation
+var timer;									// timer to count the date
 var wind_name = ["Buan", "Chilbaldo", "Chujado", "Deokjeokdo", "Donghae", "Geojaedo", "Geomundo",
 				"Incheon", "Marado", "Oeyeondo", "Pohang", "Seogwipo", "Sinan", "Tongyoung",
 				"Uljin", "Ulleungdo", "Ulsan"];
 
 var pm10_data = {}, pm25_data = {};
 
+// default pm mode is selected as pm10
 $("#pm_chbx").prop("checked", false);
+
+// set slider min-max values and set the slide event
 $( function() {
-		$( "#slider-range" ).slider({
-			range: true,
-			min: new Date("2016-01-01").getTime()/1000,
-			max: new Date("2016-12-31").getTime()/1000,
-			values: [new Date("2016-01-01").getTime()/1000, new Date("2016-12-31").getTime()/1000],
-			slide: function( event, ui ) {
-				start_date = new Date(ui.values[ 0 ] *1000);
-				end_date = new Date(ui.values[ 1 ] *1000);
-				curr_date = new Date(start_date);
-				$( "#clock" ).text(start_date.toDateString() + " - " + end_date.toDateString());
-			}
-		});
+	$( "#slider-range" ).slider({
+		range: true,
+		min: new Date("2016-01-01").getTime()/1000,
+		max: new Date("2016-12-31").getTime()/1000,
+		values: [new Date("2016-01-01").getTime()/1000, new Date("2016-12-31").getTime()/1000],
+		slide: function( event, ui ) {
+			start_date = new Date(ui.values[ 0 ] *1000);
+			end_date = new Date(ui.values[ 1 ] *1000);
+			curr_date = new Date(start_date);
+			$( "#clock" ).text(start_date.toDateString() + " - " + end_date.toDateString());
+		}
+	});
 } );
 
+// play button click event
 $("#play-button").click(function(d) {
+	// set the timer and start animation
 	if(playing === false) {
-    // map.selectAll("path").off("mouseenter", mymouseenter);
-
 		d3.select(this).attr('src', 'stop-circle.png');
 		timer = setInterval(function(){
 			sequenceMap();
@@ -55,10 +58,9 @@ $("#play-button").click(function(d) {
 					.slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
 				$( "#clock" ).text(start_date.toDateString() + " - " + end_date.toDateString());
 			}
-
         }, 1000);
         playing = true;
-    } else {
+    } else {	// clear the timer and set the windows to the first state
       clearInterval(timer);
       $("#play-button").attr('src', 'play-circle.png');
       playing = false;
@@ -84,6 +86,7 @@ $("#play-button").click(function(d) {
     }
 });
 
+// map svg object
 var svg = d3.select("#map").append("svg")
     .attr("width", width)
 	.attr("height", height)
@@ -111,9 +114,11 @@ var projection = d3.geo.mercator()
 
 var path = d3.geo.path().projection(projection);
 
+// draw map with topo json file
 d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
 	var features = topojson.feature(data, data.objects["skorea_provinces_geo"]).features;
 
+	// get dust data to color the map
 	d3.csv("csv/" + pm + ".csv", function(data) {
 		var rateById = {};
 		data.forEach(function(d) {
@@ -136,6 +141,7 @@ d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
   	.on("mouseleave", mymouseleave);
 	})
 
+	// 화력 발전소 데이터를 사용하여 지도 위에 위치를 표시한다
 	d3.csv("csv/electric.csv", function(data) {
 		map.selectAll("circle")
 			.data(data)
@@ -148,6 +154,7 @@ d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
       .on("mouseleave", elecmouseleave);
 	});
 
+	// 풍향/풍속 데이터를 사용하여 지도 위에 화살표를 표시한다.(line+marker)
 	d3.csv("csv/wind.csv", function(data) {
 		map.selectAll("line")
 			.data(data)
@@ -171,12 +178,15 @@ d3.json("json/skorea_provinces_topo_simple.json", function(error, data) {
 	});
 });
 
+/*
 svg.append("text")
 	.attr("x", 10)
 	.attr("y", 20)
 	.attr("font-size", "20px")
 	.attr("id", "zoom-in");
+*/
 
+// add legend to the map (화력발전소, 풍향)
 var legend = svg.append("g")
     .attr("class", "legend")
     .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
@@ -209,6 +219,7 @@ var legend = svg.append("g")
 	.style("text-anchor", "end")
 	.text("풍향");
 
+// 미세먼지 색상 기준
 var ref = svg.append("g")
 	.attr("id", "ref")
 	.attr("transform", "translate(100,20)");
@@ -246,6 +257,7 @@ ref.selectAll("text")
 		return st; 
 	});
 	
+// decide colors according to dust density
 function getcolor(val) {
 	if(val >= 151) return "#d7191c";
 	else if(val < 151 && val >= 81) return "#fdae61";
@@ -254,10 +266,12 @@ function getcolor(val) {
 	else return "#FFF";
 }
 
+// map click event: move to the detail page
 function myclick(d) {
 	detailpage(d.properties.name_eng, pm, d.properties.name);
 }
 
+// map mouse enter event: show detail information
 function mymouseenter(d) {
 	var x, y;
 	var text;
@@ -308,6 +322,7 @@ function mymouseleave(d) {
 	$(".mouse-enter").remove();
 }
 
+// mouse enter event for 화력발전소
 function elecmouseenter(d) {
 	map.append("text")
 		.attr("x", projection([d.lon, d.lat])[0])
@@ -321,6 +336,7 @@ function elecmouseleave(d) {
 	$("#elec-mouse-enter").remove();
 }
 
+// set Cookie and move to the detail page
 function detailpage(index1, index2, index3) {
 	setCookie("province", index1, 0.5);
 	setCookie("pm", index2, 0.5);
@@ -336,6 +352,7 @@ function setCookie(c_name,value,exdays) {
 	document.cookie=c_name + "=" + c_value;
 }
 
+// change map coloring according to pm mode
 function pm_switch(chbx) {
   if (chbx.checked == true)
     pm = 'pm25';
@@ -355,6 +372,7 @@ function toRadians (angle) {
   return angle * (Math.PI / 180);
 }
 
+// get past data after the page has loaded
 function getData() {
 	d3.csv("csv/TS_DL_AVG.csv", function(data) {
 		data.forEach(function(d) {
@@ -384,6 +402,7 @@ function getData() {
   });
 }
 
+// change date format to yyyymmdd
 Date.prototype.yyyymmdd = function() {
   var mm = this.getMonth() + 1;
   var dd = this.getDate();
@@ -394,6 +413,7 @@ Date.prototype.yyyymmdd = function() {
          ].join('');
 };
 
+// change date format to yyyy-mm-dd
 Date.prototype.dashform = function() {
   var mm = this.getMonth() + 1;
   var dd = this.getDate();
@@ -404,6 +424,7 @@ Date.prototype.dashform = function() {
          ].join('-');
 }
 
+// sequence map (animation): change color, wind arrow according to the current date
 function sequenceMap() {
 	var result = $.grep(attributeArray, function(e){
 		var date = curr_date.yyyymmdd();
@@ -462,13 +483,9 @@ function sequenceMap() {
 		map.select("#arrow-header")
 			.selectAll("path")
 				.style("fill", "blue");
-			//.attr("stroke-width", 0.8)
-			//.attr("stroke", "blue")
-			//.attr("marker-end", "url(#arrow-header)");
-
-	//});
 }
 
+// 화면을 최신 데이터에 기반하여 처음으로 돌려놓는다(after the animation)
 function firstMap() {
 	d3.csv("csv/" + pm + ".csv", function(data) {
 		var rateById = {};
