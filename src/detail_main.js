@@ -60,7 +60,7 @@ $("#play-button").click(function(d) {
 				$( "#slider-range" )
 					.slider('values', [start_date.getTime()/1000, end_date.getTime()/1000]);
 				$( "#clock" ).text(start_date.toDateString() + " - " + end_date.toDateString());
-				
+
 				// 화면을 최신 데이터에 맞도록 맞춤
 				firstMap();
 				redraw_chart();
@@ -226,7 +226,7 @@ function drawPlantInfo() {
 				$('#plant').append(name_div);
 			}
 		});
-		  
+
 		if(elec.length !== 0) {
 			$('#plant').append("<div class='plant_detail'>발전소가 없습니다" + "</div>");
 		}
@@ -354,7 +354,7 @@ function elecmouseleave(d) {
 	$("#elec-mouse-enter").remove();
 }
 
-// map click event: move to the detail page: 
+// map click event: move to the detail page:
 // should stop the animation and change chart data
 function myclick(d) {
 	var x, y, k;
@@ -438,7 +438,7 @@ function sequenceMap() {
 		var date = curr_date.yyyymmdd();
 		return date === e["DATE1"];
 	});
-	
+
 	map.selectAll("path")
 		.style("fill", function(d2) {
 			var val = $.grep(result, function(c) {
@@ -467,6 +467,11 @@ function firstMap() {
 				return getcolor(rateById[d.properties.SIG_KOR_NM]);
 			});
 	});
+}
+
+function go_home() {
+	p = "index.html";
+	window.location.href=p;
 }
 
 $(document).ready(getData);
