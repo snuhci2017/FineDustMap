@@ -138,6 +138,10 @@ input:checked + .slider:before {
     fill: white;
 }
 
+#play-button {
+   display: inline-block;
+}
+
 div.ui-slider-range.ui-widget-header {
     background: #ffdd00;
 }
