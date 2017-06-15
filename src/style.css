@@ -3,6 +3,11 @@ svg text {
   font-size: 20px;
 }
 
+svg {
+  display: block;
+  margin: auto;
+}
+
 svg .municipality {
   fill: #111;
   stroke: #fff;
